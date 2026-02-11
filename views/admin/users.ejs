@@ -1,0 +1,82 @@
+<%- include('../partials/header') %>
+
+    <main>
+        <section class="section">
+            <div class="container admin-container">
+                <div class="admin-header">
+                    <h1 class="section-title" style="margin: 0;">Manage Users</h1>
+                    <a href="/admin/dashboard" class="btn btn-add-cart">Back to Dashboard</a>
+                </div>
+
+                <% if (query && query.success) { %>
+                    <div style="background: #d4edda; color: #155724; padding: 1rem; border-radius: 5px; margin-bottom: 1.5rem;">
+                        <%= query.success %>
+                    </div>
+                    <% } %>
+
+                <div class="admin-stats">
+                    <div class="stat-card">
+                        <div class="stat-value">
+                            <%= totalUsers %>
+                        </div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">
+                            <%= activeUsers %>
+                        </div>
+                        <div class="stat-label">Active Users (Placed Orders)</div>
+                    </div>
+                </div>
+
+                <div style="background: var(--white); padding: 2rem; border-radius: 10px; box-shadow: var(--shadow);">
+                    <h2 style="font-family: 'Playfair Display', serif; margin-bottom: 1.5rem;">User List</h2>
+                    <% if (users && users.length > 0) { %>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Join Date</th>
+                                    <th>City</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% users.forEach(user => { %>
+                                    <tr>
+                                        <td>
+                                            <%= user.name %>
+                                        </td>
+                                        <td>
+                                            <%= user.email %>
+                                        </td>
+                                        <td>
+                                            <%= user.phone || 'N/A' %>
+                                        </td>
+                                        <td>
+                                            <%= new Date(user.createdAt).toLocaleDateString() %>
+                                        </td>
+                                        <td>
+                                            <%= user.address?.city || 'N/A' %>
+                                        </td>
+                                    </tr>
+                                    <% }); %>
+                            </tbody>
+                        </table>
+                        <% } else { %>
+                            <p style="text-align: center; padding: 2rem; color: var(--text-light);">No users found.</p>
+                            <% } %>
+                </div>
+
+                <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
+                    <a href="/admin/dashboard" class="btn btn-add-cart">Dashboard</a>
+                    <a href="/admin/products" class="btn btn-add-cart">Manage Products</a>
+                    <a href="/admin/orders" class="btn btn-add-cart">Manage Orders</a>
+                    <a href="/admin/coupons" class="btn btn-add-cart">Manage Coupons</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <%- include('../partials/footer') %>

@@ -14,6 +14,7 @@ router.get('/orders', isAdmin, adminController.getOrders);
 router.put('/orders/:id/status', isAdmin, adminController.updateOrderStatus);
 router.get('/coupons', isAdmin, adminController.getCoupons);
 router.post('/coupons/add', isAdmin, adminController.postAddCoupon);
+router.get('/users', isAdmin, adminController.getUsers);
 
 module.exports = router;
 

@@ -208,3 +208,26 @@ exports.postAddCoupon = async (req, res) => {
   }
 };
 
+exports.getUsers = async (req, res) => {
+  try {
+    const users = await User.find({ isAdmin: false }).sort({ createdAt: -1 });
+    const totalUsers = users.length;
+    const activeUsers = await Order.distinct('user', { status: { $ne: 'cancelled' } });
+    const activeUserCount = activeUsers.length;
+    
+    res.render('admin/users', {
+      title: 'Manage Users - SheenClassics',
+      users,
+      totalUsers,
+      activeUsers: activeUserCount,
+      query: req.query
+    });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).render('error', {
+      title: 'Error - SheenClassics',
+      error: 'Failed to load users'
+    });
+  }
+};
+

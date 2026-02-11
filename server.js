@@ -15,15 +15,15 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 
 // Session configuration
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'sheenclassics-secret-key-change-in-production',
-  resave: false,
-  saveUninitialized: false,
-  store: MongoStore.create({
-    mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/sheenclassics'
-  }),
-  cookie: {
-    maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
-  }
+    secret: process.env.SESSION_SECRET || 'sheenclassics-secret-key-change-in-production',
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGODB_URI
+    }),
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
+    }
 }));
 
 // View engine setup
@@ -32,17 +32,25 @@ app.set('views', path.join(__dirname, 'views'));
 
 // Make session available to all views
 app.use((req, res, next) => {
-  res.locals.session = req.session;
-  next();
+    res.locals.session = req.session;
+    next();
 });
 
 // Database connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/sheenclassics', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log('MongoDB Connected'))
-.catch(err => console.error('MongoDB connection error:', err));
+if (!process.env.MONGODB_URI) {
+    console.error("MONGODB_URI not defined");
+    process.exit(1);
+}
+
+mongoose.connect(process.env.MONGODB_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    })
+    .then(() => console.log('MongoDB Connected'))
+    .catch(err => {
+        console.error('MongoDB connection error:', err);
+        process.exit(1);
+    });
 
 // Routes
 app.use('/', require('./routes/index'));
@@ -56,20 +64,19 @@ app.use('/admin', require('./routes/admin'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).render('error', { 
-    error: err.message,
-    title: 'Error - SheenClassics'
-  });
+    console.error(err.stack);
+    res.status(500).render('error', {
+        error: err.message,
+        title: 'Error - SheenClassics'
+    });
 });
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).render('404', { title: 'Page Not Found - SheenClassics' });
+    res.status(404).render('404', { title: 'Page Not Found - SheenClassics' });
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
-
