@@ -43,36 +43,39 @@
                             <div class="cart-summary">
                                 <h2 style="margin-bottom: 1.5rem; font-family: 'Playfair Display', serif;">Order Summary</h2>
                                 <% 
-                        let subtotal = 0;
-                        cart.items.forEach(item => {
-                            subtotal += item.product.price * item.quantity;
-                        });
-                        %>
+                                let subtotal = 0;
+                                let deliveryCharge = 0;
+                                cart.items.forEach(item => {
+                                    subtotal += item.product.price * item.quantity;
+                                    const fee = (item.product && typeof item.product.shippingFee === 'number') ? item.product.shippingFee : 250;
+                                    deliveryCharge += fee * item.quantity;
+                                });
+                                const total = subtotal + deliveryCharge;
+                                %>
                                     <div class="summary-row">
                                         <span>Subtotal:</span>
-                                        <span>$<%= subtotal.toFixed(2) %></span>
+                                        <span>Rs.<%= subtotal.toFixed(2) %></span>
                                     </div>
                                     <div class="summary-row">
                                         <span>Shipping:</span>
-                                        <span>Free</span>
-                                    </div>
-                                    <div class="summary-total">
-                                        <div class="summary-row">
-                                            <span>Total:</span>
-                                            <span>$<%= subtotal.toFixed(2) %></span>
+                                        <span id="cart-shipping">Rs.<%= deliveryCharge.toFixed(2) %></span>
+                                        <div class="summary-total">
+                                            <div class="summary-row">
+                                                <span>Total:</span>
+                                                <span>Rs.<%= total.toFixed(2) %></span>
+                                            </div>
                                         </div>
+                                        <a href="/orders/summary" class="btn btn-add-cart" style="width: 100%; text-align: center; margin-top: 1.5rem; display: block;">Proceed to Checkout</a>
                                     </div>
-                                    <a href="/orders/summary" class="btn btn-add-cart" style="width: 100%; text-align: center; margin-top: 1.5rem; display: block;">Proceed to Checkout</a>
                             </div>
                         </div>
+                        <% } else { %>
+                            <div style="text-align: center; padding: 5rem;">
+                                <h2 style="margin-bottom: 1rem; color: var(--text-light);">Your cart is empty</h2>
+                                <a href="/products" class="btn btn-add-cart">Continue Shopping</a>
+                            </div>
+                            <% } %>
                     </div>
-                    <% } else { %>
-                        <div style="text-align: center; padding: 5rem;">
-                            <h2 style="margin-bottom: 1rem; color: var(--text-light);">Your cart is empty</h2>
-                            <a href="/products" class="btn btn-add-cart">Continue Shopping</a>
-                        </div>
-                        <% } %>
-            </div>
         </section>
     </main>
 

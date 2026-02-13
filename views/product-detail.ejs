@@ -5,7 +5,23 @@
             <div class="container">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start;">
                     <div>
-                        <img src="<%= product.images && product.images[0] ? product.images[0] : '/images/p1.jpeg' %>" alt="<%= product.name %>" style="width: 100%; border-radius: 10px; box-shadow: var(--shadow-lg);">
+                        <div class="image-gallery" style="position: relative;">
+                            <div class="gallery-main" style="position: relative; overflow: hidden; border-radius: 10px; box-shadow: var(--shadow-lg);">
+                                <button class="gallery-btn prev" aria-label="Previous image" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); color: white; border: none; width: 44px; height: 44px; border-radius: 50%; z-index: 10; cursor: pointer;">‹</button>
+                                <button class="gallery-btn next" aria-label="Next image" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); color: white; border: none; width: 44px; height: 44px; border-radius: 50%; z-index: 10; cursor: pointer;">›</button>
+                                <img id="gallery-image" src="<%= product.images && product.images[0] ? product.images[0] : '/images/p1.jpeg' %>" alt="<%= product.name %>" style="width: 100%; display: block;">
+                            </div>
+
+                            <% if (product.images && product.images.length > 1) { %>
+                                <div class="gallery-thumbs" style="display: flex; gap: 0.5rem; margin-top: 0.75rem; overflow-x: auto;">
+                                    <% product.images.forEach(function(img, idx) { %>
+                                        <button class="thumb-btn" data-index="<%= idx %>" style="border: none; padding: 0; background: transparent; cursor: pointer;">
+                                        <img src="<%= img %>" alt="thumb-<%= idx %>" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px; border: 2px solid <%= idx === 0 ? 'var(--secondary-color)' : 'transparent' %>;">
+                                    </button>
+                                        <% }); %>
+                                </div>
+                                <% } %>
+                        </div>
                     </div>
                     <div>
                         <h1 style="font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-bottom: 1rem;">
@@ -91,3 +107,90 @@
     </main>
 
     <%- include('partials/footer') %>
+
+        <script>
+            // Product image gallery: click buttons, thumbnails, arrow keys, swipe
+            (function() {
+                const images = [
+                    <% if (product.images && product.images.length) { %>
+                    <% product.images.forEach(function(img, idx) { %>
+                    '<%= img %>'
+                    <% if (idx < product.images.length - 1) { %>, <% } %>
+                    <% }); %>
+                    <% } else { %>
+                    '/images/p1.jpeg'
+                    <% } %>
+                ];
+
+                const galleryImage = document.getElementById('gallery-image');
+                const prevBtn = document.querySelector('.gallery-btn.prev');
+                const nextBtn = document.querySelector('.gallery-btn.next');
+                const thumbBtns = Array.from(document.querySelectorAll('.thumb-btn'));
+                let current = 0;
+
+                function showImage(index) {
+                    if (!images || images.length === 0) return;
+                    current = (index + images.length) % images.length;
+                    galleryImage.src = images[current];
+                    // update active thumb border
+                    thumbBtns.forEach(btn => {
+                        const imgEl = btn.querySelector('img');
+                        btn.style.outline = 'none';
+                        if (parseInt(btn.dataset.index, 10) === current) {
+                            imgEl.style.border = '2px solid var(--secondary-color)';
+                        } else {
+                            imgEl.style.border = '2px solid transparent';
+                        }
+                    });
+                }
+
+                function showNext() {
+                    showImage(current + 1);
+                }
+
+                function showPrev() {
+                    showImage(current - 1);
+                }
+
+                if (nextBtn) nextBtn.addEventListener('click', showNext);
+                if (prevBtn) prevBtn.addEventListener('click', showPrev);
+
+                // Thumbnails click
+                thumbBtns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const idx = parseInt(this.dataset.index, 10);
+                        showImage(idx);
+                    });
+                });
+
+                // Keyboard navigation
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'ArrowLeft') showPrev();
+                    if (e.key === 'ArrowRight') showNext();
+                });
+
+                // Touch swipe
+                let touchStartX = 0;
+                let touchEndX = 0;
+                const galleryMain = document.querySelector('.gallery-main');
+                if (galleryMain) {
+                    galleryMain.addEventListener('touchstart', function(e) {
+                        touchStartX = e.changedTouches[0].screenX;
+                    }, {
+                        passive: true
+                    });
+
+                    galleryMain.addEventListener('touchend', function(e) {
+                        touchEndX = e.changedTouches[0].screenX;
+                        const dx = touchEndX - touchStartX;
+                        if (Math.abs(dx) > 40) {
+                            if (dx < 0) showNext();
+                            else showPrev();
+                        }
+                    });
+                }
+
+                // Init
+                showImage(0);
+            })();
+        </script>

@@ -2,7 +2,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
     const navMenu = document.querySelector('.nav-menu');
-    
+
     if (mobileMenuToggle) {
         mobileMenuToggle.addEventListener('click', function() {
             navMenu.classList.toggle('active');
@@ -34,7 +34,7 @@ async function addToCart(productId, size = '', color = '') {
         });
 
         const data = await response.json();
-        
+
         if (data.success) {
             showNotification(data.message, 'success');
         } else {
@@ -57,7 +57,7 @@ async function addToWishlist(productId) {
         });
 
         const data = await response.json();
-        
+
         if (data.success) {
             showNotification(data.message, 'success');
         } else {
@@ -80,7 +80,7 @@ async function removeFromWishlist(productId) {
         });
 
         const data = await response.json();
-        
+
         if (data.success) {
             showNotification(data.message, 'success');
             setTimeout(() => {
@@ -100,7 +100,7 @@ async function updateCartQuantity(itemId, quantity) {
         removeFromCart(itemId);
         return;
     }
-    
+
     try {
         const response = await fetch('/cart/update', {
             method: 'PUT',
@@ -111,7 +111,7 @@ async function updateCartQuantity(itemId, quantity) {
         });
 
         const data = await response.json();
-        
+
         if (data.success) {
             showNotification('Cart updated', 'success');
             setTimeout(() => {
@@ -141,7 +141,7 @@ async function removeFromCart(itemId) {
         });
 
         const data = await response.json();
-        
+
         if (data.success) {
             showNotification(data.message, 'success');
             setTimeout(() => {
@@ -158,7 +158,7 @@ async function removeFromCart(itemId) {
 // Apply coupon
 async function applyCoupon() {
     const couponCode = document.getElementById('coupon-code').value;
-    
+
     if (!couponCode) {
         showNotification('Please enter a coupon code', 'error');
         return;
@@ -174,10 +174,15 @@ async function applyCoupon() {
         });
 
         const data = await response.json();
-        
+
         if (data.success) {
-            document.getElementById('discount').textContent = `-$${data.discount.toFixed(2)}`;
-            document.getElementById('total').textContent = `$${data.total.toFixed(2)}`;
+            const discountEl = document.getElementById('discount');
+            const totalEl = document.getElementById('total');
+            const shippingEl = document.getElementById('order-shipping');
+
+            if (discountEl) discountEl.textContent = `-Rs.${data.discount.toFixed(2)}`;
+            if (shippingEl && typeof data.deliveryCharge !== 'undefined') shippingEl.textContent = `Rs.${data.deliveryCharge.toFixed(2)}`;
+            if (totalEl) totalEl.textContent = `Rs.${data.total.toFixed(2)}`;
             document.getElementById('applied-coupon').value = couponCode;
             showNotification(data.message, 'success');
         } else {
@@ -193,7 +198,7 @@ async function cancelOrder(orderId) {
     if (!confirm('Are you sure you want to cancel this order?')) {
         return;
     }
-    
+
     try {
         const response = await fetch(`/orders/${orderId}/cancel`, {
             method: 'POST',
@@ -201,9 +206,9 @@ async function cancelOrder(orderId) {
                 'Content-Type': 'application/json'
             }
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             showNotification(data.message, 'success');
             setTimeout(() => {
@@ -234,9 +239,9 @@ function showNotification(message, type = 'info') {
         z-index: 10000;
         animation: slideIn 0.3s ease;
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
         notification.style.animation = 'slideOut 0.3s ease';
         setTimeout(() => {
@@ -271,4 +276,3 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
-

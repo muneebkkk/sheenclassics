@@ -30,7 +30,11 @@ const upload = multer({
 router.get('/dashboard', isAdmin, adminController.getDashboard);
 router.get('/products', isAdmin, adminController.getProducts);
 router.get('/products/add', isAdmin, adminController.getAddProduct);
-router.post('/products/add', isAdmin, upload.single('image'), adminController.postAddProduct);
+// Accept both multi-image field `images` and legacy single `image` for compatibility
+router.post('/products/add', isAdmin, upload.fields([
+    { name: 'images', maxCount: 5 },
+    { name: 'image', maxCount: 1 }
+]), adminController.postAddProduct);
 router.get('/products/:id/edit', isAdmin, adminController.getEditProduct);
 router.post('/products/:id/edit', isAdmin, adminController.postEditProduct);
 router.delete('/products/:id', isAdmin, adminController.deleteProduct);

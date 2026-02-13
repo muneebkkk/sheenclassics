@@ -5,6 +5,17 @@ const User = require('../models/User');
 const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
 
+// Helper: upload a buffer to Cloudinary and return the result
+function uploadBufferToCloudinary(buffer, options = {}) {
+    return new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(options, (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+        });
+        streamifier.createReadStream(buffer).pipe(uploadStream);
+    });
+}
+
 exports.getDashboard = async(req, res) => {
     try {
         const totalProducts = await Product.countDocuments();
@@ -63,7 +74,7 @@ exports.getAddProduct = (req, res) => {
 
 exports.postAddProduct = async(req, res) => {
     try {
-        const { name, description, price, originalPrice, category, sizes, colors, stock, featured } = req.body;
+        const { name, description, price, originalPrice, category, sizes, colors, stock, featured, shippingFee } = req.body;
 
         // Validate required fields
         if (!name || !description || !price || !category || !stock) {
@@ -73,52 +84,66 @@ exports.postAddProduct = async(req, res) => {
             });
         }
 
-        // Check if image was uploaded
-        if (!req.file) {
+        // Normalize uploaded files (support multer.array and multer.fields)
+        let filesArray = [];
+        if (Array.isArray(req.files)) {
+            filesArray = req.files;
+        } else if (req.files && typeof req.files === 'object') {
+            // req.files may be an object like { images: [...], image: [...] }
+            for (const key of Object.keys(req.files)) {
+                if (Array.isArray(req.files[key])) filesArray.push(...req.files[key]);
+            }
+        }
+
+        // Check if images were uploaded (support multiple images)
+        if (!filesArray || filesArray.length === 0) {
             return res.status(400).render('admin/add-product', {
                 title: 'Add Product - SheenClassics',
-                error: 'Product image is required'
+                error: 'At least one product image is required'
             });
         }
 
-        // Upload to Cloudinary using signed upload with SDK
+        // Upload each buffer to Cloudinary using helper
         try {
-            const uploadStream = cloudinary.uploader.upload_stream({
-                    folder: 'sheenclassics/products',
-                    resource_type: 'auto',
-                    quality: 'auto'
-                },
-                async(error, result) => {
-                    if (error) {
-                        throw error;
-                    }
-
-                    const imageUrl = result.secure_url;
-
-                    // Create product with Cloudinary image URL
-                    const product = new Product({
-                        name: name.trim(),
-                        description: description.trim(),
-                        price: parseFloat(price),
-                        originalPrice: originalPrice ? parseFloat(originalPrice) : undefined,
-                        category,
-                        sizes: sizes ? (Array.isArray(sizes) ? sizes : [sizes]) : [],
-                        colors: colors ? colors.split(',').map(c => c.trim()).filter(c => c) : [],
-                        stock: parseInt(stock),
-                        featured: featured === 'on',
-                        images: [imageUrl]
+            const images = [];
+            for (const file of filesArray) {
+                try {
+                    const result = await uploadBufferToCloudinary(file.buffer, {
+                        folder: 'sheenclassics/products',
+                        resource_type: 'auto',
+                        quality: 'auto'
                     });
-
-                    await product.save();
-                    res.redirect('/admin/products?success=Product added successfully');
+                    if (result && result.secure_url) images.push(result.secure_url);
+                } catch (singleErr) {
+                    console.error('Cloudinary single file upload error:', singleErr);
+                    throw new Error('Failed to upload one of the product images.');
                 }
-            );
+            }
 
-            // Pipe the file buffer to Cloudinary
-            streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+            if (images.length === 0) {
+                throw new Error('No images were uploaded to Cloudinary');
+            }
+
+            // Create product with Cloudinary image URLs
+            const product = new Product({
+                name: name.trim(),
+                description: description.trim(),
+                price: parseFloat(price),
+                originalPrice: originalPrice ? parseFloat(originalPrice) : undefined,
+                category,
+                sizes: sizes ? (Array.isArray(sizes) ? sizes : [sizes]) : [],
+                colors: colors ? colors.split(',').map(c => c.trim()).filter(c => c) : [],
+                stock: parseInt(stock),
+                featured: featured === 'on',
+                images,
+                shippingFee: shippingFee ? parseFloat(shippingFee) : 250
+            });
+
+            await product.save();
+            res.redirect('/admin/products?success=Product added successfully');
         } catch (uploadError) {
-            console.error('Cloudinary upload error:', uploadError.message);
-            let errorMsg = uploadError.message || 'Failed to upload image to Cloudinary';
+            console.error('Cloudinary upload error:', uploadError.message || uploadError);
+            let errorMsg = (uploadError && uploadError.message) ? uploadError.message : 'Failed to upload images to Cloudinary';
 
             res.status(500).render('admin/add-product', {
                 title: 'Add Product - SheenClassics',
@@ -159,7 +184,7 @@ exports.getEditProduct = async(req, res) => {
 
 exports.postEditProduct = async(req, res) => {
     try {
-        const { name, description, price, originalPrice, category, sizes, colors, stock, featured } = req.body;
+        const { name, description, price, originalPrice, category, sizes, colors, stock, featured, shippingFee } = req.body;
 
         await Product.findByIdAndUpdate(req.params.id, {
             name,
@@ -170,7 +195,8 @@ exports.postEditProduct = async(req, res) => {
             sizes: sizes ? (Array.isArray(sizes) ? sizes : [sizes]) : [],
             colors: colors ? (Array.isArray(colors) ? colors : [colors]) : [],
             stock: parseInt(stock),
-            featured: featured === 'on'
+            featured: featured === 'on',
+            shippingFee: shippingFee ? parseFloat(shippingFee) : undefined
         });
 
         res.redirect('/admin/products?success=Product updated successfully');

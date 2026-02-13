@@ -12,9 +12,8 @@ router.post('/create', isAuthenticated, orderController.createOrder);
 router.post('/:id/cancel', orderController.cancelOrder);
 // My orders redirects to account with orders tab
 router.get('/my-orders', isAuthenticated, (req, res) => {
-  res.redirect('/account?tab=orders');
+    res.redirect('/account?tab=orders');
 });
 router.get('/:id', isAuthenticated, orderController.getOrder);
 
 module.exports = router;
-
