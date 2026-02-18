@@ -1,121 +1,179 @@
 <%- include('partials/header') %>
 
     <main>
-        <section class="section">
-            <div class="container">
-                <h1 class="section-title">Order Details</h1>
+        <section class="section" style="padding-top:3rem;">
+            <div class="container" style="max-width:1080px;">
 
-                <div class="order-detail-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 3rem;">
+                <!-- Header -->
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:3rem;" class="reveal">
                     <div>
-                        <div style="background: var(--white); padding: 2rem; border-radius: 10px; box-shadow: var(--shadow); margin-bottom: 2rem;">
-                            <h2 style="font-family: 'Playfair Display', serif; margin-bottom: 1.5rem;">Order Items</h2>
-                            <% order.items.forEach(item => { %>
-                                <div style="display: flex; gap: 1.5rem; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color);">
-                                    <img src="<%= item.product.images && item.product.images[0] ? item.product.images[0] : '/images/p1.jpeg' %>" alt="<%= item.product.name %>" style="width: 120px; height: 120px; object-fit: cover; border-radius: 5px;">
-                                    <div style="flex: 1;">
-                                        <h3 style="margin-bottom: 0.5rem;">
-                                            <%= item.product.name %>
-                                        </h3>
-                                        <p style="color: var(--text-light); margin-bottom: 0.5rem;">Quantity:
-                                            <%= item.quantity %>
-                                        </p>
-                                        <% if (item.size) { %>
-                                            <p style="color: var(--text-light); margin-bottom: 0.5rem;">Size:
-                                                <%= item.size %>
-                                            </p>
-                                            <% } %>
-                                                <% if (item.color) { %>
-                                                    <p style="color: var(--text-light); margin-bottom: 0.5rem;">Color:
-                                                        <%= item.color %>
-                                                    </p>
-                                                    <% } %>
-                                                        <p style="color: var(--secondary-color); font-weight: 600; font-size: 1.2rem;">Rs.
-                                                            <%= (item.price * item.quantity).toFixed(2) %>
-                                                        </p>
-                                    </div>
-                                </div>
-                                <% }); %>
-                        </div>
-
-                        <div style="background: var(--white); padding: 2rem; border-radius: 10px; box-shadow: var(--shadow);">
-                            <h2 style="font-family: 'Playfair Display', serif; margin-bottom: 1.5rem;">Shipping Address</h2>
-                            <p>
-                                <%= order.shippingAddress.street %>
-                            </p>
-                            <p>
-                                <%= order.shippingAddress.city %>,
-                                    <%= order.shippingAddress.state %>
-                                        <%= order.shippingAddress.zipCode %>
-                            </p>
-                            <p>
-                                <%= order.shippingAddress.country %>
-                            </p>
-                        </div>
+                        <span style="font-size:0.7rem;font-weight:600;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:0.5rem;">Order Receipt</span>
+                        <h1 style="font-family:var(--font-serif);font-size:clamp(1.8rem,4vw,2.8rem);font-weight:300;color:var(--primary);line-height:1.1;">
+                            Order <em style="color:var(--gold);">#<%= order._id.toString().substring(0,8).toUpperCase() %></em>
+                        </h1>
+                        <p style="font-size:0.82rem;color:var(--text-muted);margin-top:0.5rem;">
+                            Placed
+                            <%= new Date(order.createdAt).toLocaleDateString('en-PK', {weekday:'long', day:'numeric', month:'long', year:'numeric'}) %>
+                        </p>
                     </div>
+                    <div style="display:flex;align-items:center;gap:0.75rem;">
+                        <span class="badge badge-<%= order.status %>" style="font-size:0.82rem;padding:6px 16px;">
+                        <%= order.status %>
+                    </span>
+                        <a href="/account?tab=orders" style="display:inline-flex;align-items:center;gap:5px;padding:0.6rem 1.2rem;background:transparent;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:0.78rem;font-weight:600;color:var(--text-secondary);text-decoration:none;transition:all 0.25s;"
+                            onmouseover="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-secondary)'">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> All Orders
+                        </a>
+                    </div>
+                </div>
 
+                <div style="display:grid;grid-template-columns:1fr 360px;gap:2.5rem;align-items:start;">
+
+                    <!-- ── Left Column ── -->
                     <div>
-                        <div class="cart-summary">
-                            <h2 style="margin-bottom: 1.5rem; font-family: 'Playfair Display', serif;">Order Summary</h2>
-                            <div class="summary-row">
-                                <span>Subtotal:</span>
-                                <span>Rs.<%= order.subtotal.toFixed(2) %></span>
+                        <!-- Order Items -->
+                        <div class="reveal" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);overflow:hidden;margin-bottom:1.5rem;">
+                            <div style="padding:1.4rem 2rem;border-bottom:1px solid var(--border);">
+                                <h2 style="font-family:var(--font-serif);font-size:1.3rem;font-weight:400;color:var(--primary);">Order Items</h2>
                             </div>
-                            <% if (order.discount > 0) { %>
-                                <div class="summary-row">
-                                    <span>Discount<% if (order.couponCode) { %> (<%= order.couponCode %>)<% } %>:</span>
-                                    <span>Rs.<%= order.discount.toFixed(2) %></span>
-                                </div>
-                                <% } %>
-                                    <div class="summary-row">
-                                        <span>Shipping:</span>
-                                        <span>Rs.<%= (order.deliveryCharge || 0).toFixed(2) %></span>
-                                    </div>
-                                    <div class="summary-total">
-                                        <div class="summary-row">
-                                            <span>Total:</span>
-                                            <span>Rs.<%= order.total.toFixed(2) %></span>
+                            <div style="padding:0 2rem;">
+                                <% order.items.forEach((item, i) => { %>
+                                    <div style="display:flex;gap:1.5rem;padding:1.4rem 0;border-bottom:<%= i < order.items.length - 1 ? '1px solid var(--border)' : 'none' %>;">
+                                        <div style="width:88px;height:110px;border-radius:var(--radius);overflow:hidden;flex-shrink:0;border:1px solid var(--border);">
+                                            <img src="<%= item.product.images && item.product.images[0] ? item.product.images[0] : '/images/p1.jpeg' %>" alt="<%= item.product.name %>" style="width:100%;height:100%;object-fit:cover;">
+                                        </div>
+                                        <div style="flex:1;min-width:0;">
+                                            <h3 style="font-family:var(--font-serif);font-size:1.1rem;font-weight:400;color:var(--primary);margin-bottom:0.4rem;">
+                                                <%= item.product.name %>
+                                            </h3>
+                                            <div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:0.78rem;color:var(--text-muted);margin-bottom:0.6rem;">
+                                                <span>Qty: <strong style="color:var(--text-secondary)"><%= item.quantity %></strong></span>
+                                                <% if (item.size) { %><span>Size: <strong style="color:var(--text-secondary)"><%= item.size %></strong></span>
+                                                    <% } %>
+                                                        <% if (item.color) { %><span>Color: <strong style="color:var(--text-secondary)"><%= item.color %></strong></span>
+                                                            <% } %>
+                                            </div>
+                                            <div style="font-size:1.05rem;font-weight:600;color:var(--gold);">Rs
+                                                <%= (item.price * item.quantity).toFixed(2) %>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px solid var(--border-color);">
-                                        <p><strong>Status:</strong> <span style="text-transform: capitalize; color: var(--secondary-color);"><%= order.status %></span></p>
-                                        <p style="margin-top: 0.5rem;"><strong>Payment Method:</strong> <span style="text-transform: capitalize;"><%= order.paymentMethod %></span></p>
-                                        <% if (order.paymentMethod === 'jazzcash' && order.paymentDetails && order.paymentDetails.jazzcashNumber) { %>
-                                            <p style="margin-top: 0.5rem; color: var(--text-light);">JazzCash Number:
-                                                <%= order.paymentDetails.jazzcashNumber %>
-                                            </p>
-                                            <% } %>
-                                                <% if (order.paymentMethod === 'whatsapp' && order.paymentDetails && order.paymentDetails.whatsappNumber) { %>
-                                                    <p style="margin-top: 0.5rem; color: var(--text-light);">WhatsApp Number:
-                                                        <%= order.paymentDetails.whatsappNumber %>
-                                                    </p>
-                                                    <% } %>
-                                                        <p style="margin-top: 0.5rem; color: var(--text-light);">Order Date:
-                                                            <%= new Date(order.createdAt).toLocaleDateString() %>
-                                                        </p>
+                                    <% }); %>
+                            </div>
+                        </div>
 
-                                                        <% if (order.statusHistory && order.statusHistory.length > 0) { %>
-                                                            <div style="margin-top: 1.5rem;">
-                                                                <h4 style="margin-bottom: 0.5rem; font-size: 1rem;">Status History:</h4>
-                                                                <div class="status-history" style="background: #f9f9f9; padding: 1rem; border-radius: 5px;">
-                                                                    <% order.statusHistory.forEach(history => { %>
-                                                                        <div class="history-item" style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;">
-                                                                            <span style="text-transform: capitalize;"><%= history.status %></span>
-                                                                            <span style="color: var(--text-light);"><%= new Date(history.timestamp).toLocaleString() %></span>
-                                                                        </div>
-                                                                        <% if (history.note) { %>
-                                                                            <p style="font-size: 0.8rem; color: var(--text-light); margin-bottom: 0.5rem;">
-                                                                                <%= history.note %>
-                                                                            </p>
-                                                                            <% } %>
-                                                                                <% }); %>
-                                                                </div>
-                                                            </div>
-                                                            <% } %>
-
-                                                                <% if (order.status === 'pending' || order.status === 'processing') { %>
-                                                                    <button onclick="cancelOrder('<%= order._id %>')" class="btn" style="background: #f44336; color: white; width: 100%; margin-top: 1rem;">Cancel Order</button>
-                                                                    <% } %>
+                        <!-- Shipping Address -->
+                        <div class="reveal reveal-delay-1" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:2rem;margin-bottom:1.5rem;">
+                            <h2 style="font-family:var(--font-serif);font-size:1.3rem;font-weight:400;color:var(--primary);margin-bottom:1.2rem;padding-bottom:1rem;border-bottom:1px solid var(--border);">Shipping Address</h2>
+                            <div style="display:flex;gap:0.5rem;color:var(--text-secondary);font-size:0.92rem;line-height:1.8;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.8" style="flex-shrink:0;margin-top:3px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                <div>
+                                    <div>
+                                        <%= order.shippingAddress.street %>
                                     </div>
+                                    <div>
+                                        <%= order.shippingAddress.city %>,
+                                            <%= order.shippingAddress.state %>
+                                                <%= order.shippingAddress.zipCode %>
+                                    </div>
+                                    <div>
+                                        <%= order.shippingAddress.country %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status History -->
+                        <% if (order.statusHistory && order.statusHistory.length > 0) { %>
+                            <div class="reveal reveal-delay-2" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:2rem;">
+                                <h2 style="font-family:var(--font-serif);font-size:1.3rem;font-weight:400;color:var(--primary);margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);">Order Timeline</h2>
+
+                                <div style="position:relative;padding-left:1.5rem;">
+                                    <!-- Vertical line -->
+                                    <div style="position:absolute;left:6px;top:8px;bottom:8px;width:1px;background:linear-gradient(to bottom, var(--gold), var(--border));"></div>
+
+                                    <% order.statusHistory.forEach((history, i) => { %>
+                                        <div style="position:relative;margin-bottom:<%= i < order.statusHistory.length - 1 ? '1.5rem' : '0' %>;">
+                                            <!-- Dot -->
+                                            <div style="position:absolute;left:-1.5rem;top:4px;width:12px;height:12px;border-radius:50%;background:<%= i===0 ? 'var(--gold)' : 'var(--border)' %>;border:2px solid <%= i===0 ? 'var(--gold)' : 'var(--border)' %>;transition:all 0.3s;"></div>
+
+                                            <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:0.5rem;">
+                                                <span class="badge badge-<%= history.status %>" style="font-size:0.72rem;"><%= history.status %></span>
+                                                <span style="font-size:0.72rem;color:var(--text-muted);"><%= new Date(history.timestamp).toLocaleString('en-PK') %></span>
+                                            </div>
+                                            <% if (history.note) { %>
+                                                <p style="font-size:0.8rem;color:var(--text-muted);margin-top:0.4rem;padding:0.5rem 0.75rem;background:var(--cream);border-radius:var(--radius-sm);margin-top:0.5rem;">
+                                                    <%= history.note %>
+                                                </p>
+                                                <% } %>
+                                        </div>
+                                        <% }); %>
+                                </div>
+                            </div>
+                            <% } %>
+                    </div>
+
+                    <!-- ── Right: Summary Sidebar ── -->
+                    <div style="position:sticky;top:92px;">
+                        <div class="cart-summary reveal reveal-delay-2">
+                            <h3>Order Summary</h3>
+
+                            <div class="summary-row">
+                                <span>Subtotal</span>
+                                <span>Rs <%= order.subtotal.toFixed(2) %></span>
+                            </div>
+
+                            <% if (order.discount > 0) { %>
+                                <div class="summary-row" style="color:#1a7a45;">
+                                    <span>Discount<% if (order.couponCode) { %> (<%= order.couponCode %>)<% } %></span>
+                                    <span>− Rs <%= order.discount.toFixed(2) %></span>
+                                </div>
+                                <% } %>
+
+                                    <div class="summary-row">
+                                        <span>Shipping</span>
+                                        <span>Rs <%= (order.deliveryCharge || 0).toFixed(2) %></span>
+                                    </div>
+
+                                    <div class="summary-row total">
+                                        <span>Total</span>
+                                        <span style="color:var(--gold);">Rs <%= order.total.toFixed(2) %></span>
+                                    </div>
+
+                                    <!-- Meta -->
+                                    <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:0.75rem;">
+                                        <div style="display:flex;justify-content:space-between;font-size:0.82rem;">
+                                            <span style="color:var(--text-muted);">Payment Method</span>
+                                            <span style="font-weight:500;text-transform:capitalize;color:var(--text-primary);"><%= order.paymentMethod %></span>
+                                        </div>
+
+                                        <% if (order.paymentMethod === 'whatsapp' && order.paymentDetails && order.paymentDetails.whatsappNumber) { %>
+                                            <div style="display:flex;justify-content:space-between;font-size:0.82rem;">
+                                                <span style="color:var(--text-muted);">WhatsApp</span>
+                                                <span style="font-weight:500;color:var(--text-primary);"><%= order.paymentDetails.whatsappNumber %></span>
+                                            </div>
+                                            <% } %>
+
+                                                <% if (order.paymentMethod === 'jazzcash' && order.paymentDetails && order.paymentDetails.jazzcashNumber) { %>
+                                                    <div style="display:flex;justify-content:space-between;font-size:0.82rem;">
+                                                        <span style="color:var(--text-muted);">JazzCash</span>
+                                                        <span style="font-weight:500;color:var(--text-primary);"><%= order.paymentDetails.jazzcashNumber %></span>
+                                                    </div>
+                                                    <% } %>
+
+                                                        <div style="display:flex;justify-content:space-between;font-size:0.82rem;">
+                                                            <span style="color:var(--text-muted);">Order Date</span>
+                                                            <span style="font-weight:500;color:var(--text-primary);"><%= new Date(order.createdAt).toLocaleDateString('en-PK', {day:'numeric',month:'short',year:'numeric'}) %></span>
+                                                        </div>
+                                    </div>
+
+                                    <!-- Cancel Button -->
+                                    <% if (order.status === 'pending' || order.status === 'processing') { %>
+                                        <button onclick="cancelOrder('<%= order._id %>')" style="width:100%;margin-top:1.5rem;padding:0.85rem;background:transparent;border:1.5px solid rgba(192,57,43,0.3);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:0.82rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#c0392b;cursor:pointer;transition:all 0.25s;display:flex;align-items:center;justify-content:center;gap:6px;"
+                                            onmouseover="this.style.background='rgba(192,57,43,0.06)';this.style.borderColor='rgba(192,57,43,0.6)'" onmouseout="this.style.background='transparent';this.style.borderColor='rgba(192,57,43,0.3)'">
+                            Cancel Order
+                        </button>
+                                        <% } %>
                         </div>
                     </div>
                 </div>
@@ -123,12 +181,17 @@
         </section>
     </main>
 
+    <style>
+        @media (max-width: 768px) {
+            .order-detail-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+
     <script>
         async function cancelOrder(orderId) {
-            if (!confirm('Are you sure you want to cancel this order?')) {
-                return;
-            }
-
+            if (!confirm('Are you sure you want to cancel this order?')) return;
             try {
                 const response = await fetch(`/orders/${orderId}/cancel`, {
                     method: 'POST',
@@ -136,18 +199,52 @@
                         'Content-Type': 'application/json'
                     }
                 });
-
                 const data = await response.json();
-
                 if (data.success) {
-                    alert(data.message);
-                    location.reload();
+                    showNotification(data.message, 'success');
+                    setTimeout(() => location.reload(), 1200);
                 } else {
-                    alert(data.message);
+                    showNotification(data.message, 'error');
                 }
             } catch (error) {
-                alert('Failed to cancel order');
+                showNotification('Failed to cancel order', 'error');
             }
+        }
+
+        // Scroll reveal
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('visible');
+                    revealObserver.unobserve(e.target);
+                }
+            });
+        }, {
+            threshold: 0.08
+        });
+        document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+        // Navbar
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('scrolled', window.scrollY > 30);
+        }, {
+            passive: true
+        });
+
+        // Mobile menu
+        const toggle = document.querySelector('.mobile-menu-toggle');
+        const menu = document.querySelector('.nav-menu');
+        const overlay = document.querySelector('.nav-overlay');
+        if (toggle && menu) {
+            function toggleMenu(open) {
+                toggle.classList.toggle('open', open);
+                menu.classList.toggle('active', open);
+                overlay && overlay.classList.toggle('active', open);
+                document.body.style.overflow = open ? 'hidden' : '';
+            }
+            toggle.addEventListener('click', () => toggleMenu(!menu.classList.contains('active')));
+            overlay && overlay.addEventListener('click', () => toggleMenu(false));
         }
     </script>
 

@@ -3,89 +3,219 @@
     <main>
         <section class="section">
             <div class="container">
-                <h1 class="section-title">Our Products</h1>
 
-                <div style="display: flex; gap: 2rem; margin-bottom: 2rem; flex-wrap: wrap; align-items: center;">
-                    <div>
-                        <label for="category-filter" style="margin-right: 0.5rem;">Category:</label>
-                        <select id="category-filter" onchange="filterProducts()" style="padding: 0.5rem; border-radius: 5px; border: 2px solid var(--border-color);">
-                        <option value="">All Categories</option>
-                        <option value="Men" <%= currentCategory === 'Men' ? 'selected' : '' %>>Men</option>
-                        <option value="Women" <%= currentCategory === 'Women' ? 'selected' : '' %>>Women</option>
-                        <option value="Kids" <%= currentCategory === 'Kids' ? 'selected' : '' %>>Kids</option>
+                <!-- Page Header -->
+                <div class="section-header reveal" style="margin-bottom:2.5rem;">
+                    <span class="section-eyebrow">Explore</span>
+                    <h1 class="section-title">Our <em>Collection</em></h1>
+                    <div class="section-divider"></div>
+                </div>
+
+                <!-- Filters Bar -->
+                <div class="filters-bar reveal">
+                    <!-- Category Filter -->
+                    <div class="filter-group">
+                        <span class="filter-label">Category</span>
+                        <select id="category-filter" class="filter-select" onchange="filterProducts()">
+                        <option value="">All</option>
+                        <option value="Men"         <%= currentCategory === 'Men'         ? 'selected' : '' %>>Men</option>
+                        <option value="Women"       <%= currentCategory === 'Women'       ? 'selected' : '' %>>Women</option>
+                        <option value="Kids"        <%= currentCategory === 'Kids'        ? 'selected' : '' %>>Kids</option>
                         <option value="Accessories" <%= currentCategory === 'Accessories' ? 'selected' : '' %>>Accessories</option>
                     </select>
                     </div>
 
-                    <div>
-                        <label for="sort-filter" style="margin-right: 0.5rem;">Sort by:</label>
-                        <select id="sort-filter" onchange="filterProducts()" style="padding: 0.5rem; border-radius: 5px; border: 2px solid var(--border-color);">
-                        <option value="newest" <%= sortOption === 'newest' ? 'selected' : '' %>>Newest</option>
-                        <option value="price-low" <%= sortOption === 'price-low' ? 'selected' : '' %>>Price: Low to High</option>
-                        <option value="price-high" <%= sortOption === 'price-high' ? 'selected' : '' %>>Price: High to Low</option>
+                    <!-- Sort Filter -->
+                    <div class="filter-group">
+                        <span class="filter-label">Sort</span>
+                        <select id="sort-filter" class="filter-select" onchange="filterProducts()">
+                        <option value="newest"     <%= sortOption === 'newest'     ? 'selected' : '' %>>Newest</option>
+                        <option value="price-low"  <%= sortOption === 'price-low'  ? 'selected' : '' %>>Price: Low → High</option>
+                        <option value="price-high" <%= sortOption === 'price-high' ? 'selected' : '' %>>Price: High → Low</option>
                     </select>
                     </div>
 
-                    <div style="flex: 1;">
-                        <input type="text" id="search-input" placeholder="Search products..." value="<%= searchQuery %>" style="width: 100%; max-width: 400px; padding: 0.5rem; border-radius: 5px; border: 2px solid var(--border-color);">
+                    <!-- Search -->
+                    <div class="search-wrapper">
+                        <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                    </svg>
+                        <input type="text" id="search-input" class="search-input" placeholder="Search pieces..." value="<%= searchQuery %>" autocomplete="off">
+                    </div>
+
+                    <!-- Results count -->
+                    <div style="margin-left:auto; font-size:0.8rem; color:var(--text-muted); white-space:nowrap;">
+                        <% if (products && products.length > 0) { %>
+                            <strong style="color:var(--text-primary);"><%= products.length %></strong> results
+                            <% } %>
                     </div>
                 </div>
 
-                <% if (products && products.length > 0) { %>
-                    <div class="product-grid">
-                        <% products.forEach(product => { %>
-                            <div class="product-card" onclick="window.location.href='/products/<%= product._id %>'">
-                                <img src="<%= product.images && product.images[0] ? product.images[0] : '/images/p1.jpeg' %>" alt="<%= product.name %>" class="product-image">
-                                <div class="product-info">
-                                    <h3 class="product-name">
-                                        <%= product.name %>
-                                    </h3>
-                                    <p style="color: var(--text-light); margin-bottom: 0.5rem;">
-                                        <%= product.category %>
-                                    </p>
-                                    <div class="product-price">
-                                        Rs
-                                        <%= product.price.toFixed(2) %>
-                                            <% if (product.originalPrice && product.originalPrice > product.price) { %>
-                                                <span class="original">Rs<%= product.originalPrice.toFixed(2) %></span>
-                                                <% } %>
-                                    </div>
-                                    <div class="product-actions">
-                                        <button class="btn btn-add-cart" onclick="event.stopPropagation(); addToCart('<%= product._id %>')">Add to Cart</button>
-                                        <button class="btn btn-wishlist" onclick="event.stopPropagation(); addToWishlist('<%= product._id %>')">♡</button>
-                                    </div>
-                                </div>
-                            </div>
-                            <% }); %>
+                <!-- Active Filter Chips -->
+                <% if (currentCategory || searchQuery) { %>
+                    <div class="filter-chips reveal" style="margin-bottom:2rem;">
+                        <% if (currentCategory) { %>
+                            <span class="chip active">
+                    <%= currentCategory %>
+                    <span onclick="clearFilter('category')" style="cursor:pointer; opacity:0.7; margin-left:2px;">✕</span>
+                            </span>
+                            <% } %>
+                                <% if (searchQuery) { %>
+                                    <span class="chip active">
+                    "<%= searchQuery %>"
+                    <span onclick="clearFilter('search')" style="cursor:pointer; opacity:0.7; margin-left:2px;">✕</span>
+                                    </span>
+                                    <% } %>
                     </div>
-                    <% } else { %>
-                        <div style="text-align: center; padding: 3rem;">
-                            <p style="font-size: 1.2rem; color: var(--text-light);">No products found.</p>
-                        </div>
-                        <% } %>
+                    <% } %>
+
+                        <!-- Products Grid -->
+                        <% if (products && products.length > 0) { %>
+                            <div class="product-grid" id="products-grid">
+                                <% products.forEach((product, i) => { %>
+                                    <div class="product-card reveal reveal-delay-<%= Math.min(i % 4 + 1, 4) %>" onclick="window.location.href='/products/<%= product._id %>'">
+
+                                        <div class="product-image-wrap">
+                                            <img src="<%= product.images && product.images[0] ? product.images[0] : '/images/p1.jpeg' %>" alt="<%= product.name %>" class="product-image" loading="lazy">
+
+                                            <% if (product.originalPrice && product.originalPrice > product.price) { %>
+                                                <span class="product-badge sale">Sale</span>
+                                                <% } %>
+
+                                                    <div class="product-overlay">
+                                                        <button class="product-quick-add" onclick="event.stopPropagation(); addToCart('<%= product._id %>')">
+                                Quick Add to Cart
+                            </button>
+                                                    </div>
+                                        </div>
+
+                                        <div class="product-info">
+                                            <p class="product-category">
+                                                <%= product.category %>
+                                            </p>
+                                            <h3 class="product-name">
+                                                <%= product.name %>
+                                            </h3>
+
+                                            <div class="product-price-row">
+                                                <div class="product-price">
+                                                    Rs
+                                                    <%= product.price.toFixed(2) %>
+                                                        <% if (product.originalPrice && product.originalPrice > product.price) { %>
+                                                            <span class="original">Rs <%= product.originalPrice.toFixed(2) %></span>
+                                                            <% } %>
+                                                </div>
+                                            </div>
+
+                                            <div class="product-actions">
+                                                <button class="btn btn-add-cart" onclick="event.stopPropagation(); addToCart('<%= product._id %>')">
+                                <span>Add to Cart</span>
+                            </button>
+                                                <button class="btn btn-wishlist" onclick="event.stopPropagation(); addToWishlist('<%= product._id %>')" title="Wishlist">♡</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <% }); %>
+                            </div>
+
+                            <% } else { %>
+                                <!-- Empty State -->
+                                <div class="empty-state reveal">
+                                    <div class="empty-state-icon">🔍</div>
+                                    <h3>No products found</h3>
+                                    <p style="margin-bottom:1.5rem;">Try adjusting your filters or search terms.</p>
+                                    <a href="/products" class="btn btn-add-cart" style="display:inline-flex;">
+                                        <span>Clear Filters</span>
+                                    </a>
+                                </div>
+                                <% } %>
+
             </div>
         </section>
     </main>
 
     <script>
+        // ── Filter / sort / search
         function filterProducts() {
+            const category = document.getElementById('category-filter').value;
+            const sort = document.getElementById('sort-filter').value;
+            const search = document.getElementById('search-input').value.trim();
+
+            const params = new URLSearchParams();
+            if (category) params.set('category', category);
+            if (sort) params.set('sort', sort);
+            if (search) params.set('search', search);
+
+            window.location.href = '/products' + (params.toString() ? '?' + params.toString() : '');
+        }
+
+        function clearFilter(type) {
             const category = document.getElementById('category-filter').value;
             const sort = document.getElementById('sort-filter').value;
             const search = document.getElementById('search-input').value;
 
-            let url = '/products?';
-            if (category) url += 'category=' + category + '&';
-            if (sort) url += 'sort=' + sort + '&';
-            if (search) url += 'search=' + encodeURIComponent(search);
+            const params = new URLSearchParams();
+            if (type !== 'category' && category) params.set('category', category);
+            if (sort) params.set('sort', sort);
+            if (type !== 'search' && search) params.set('search', search);
 
-            window.location.href = url;
+            window.location.href = '/products' + (params.toString() ? '?' + params.toString() : '');
         }
 
-        document.getElementById('search-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                filterProducts();
-            }
+        // Search on Enter
+        document.getElementById('search-input').addEventListener('keydown', e => {
+            if (e.key === 'Enter') filterProducts();
         });
+
+        // Live debounced search
+        let searchTimer;
+        document.getElementById('search-input').addEventListener('input', e => {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => {
+                if (e.target.value.length === 0 || e.target.value.length >= 2) {
+                    filterProducts();
+                }
+            }, 500);
+        });
+
+        // ── Scroll reveal
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('visible');
+                    revealObserver.unobserve(e.target);
+                }
+            });
+        }, {
+            threshold: 0.08,
+            rootMargin: '0px 0px -30px 0px'
+        });
+
+        document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+        // ── Navbar scroll
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('scrolled', window.scrollY > 30);
+        }, {
+            passive: true
+        });
+
+        // ── Mobile menu
+        const toggle = document.querySelector('.mobile-menu-toggle');
+        const menu = document.querySelector('.nav-menu');
+        const overlay = document.querySelector('.nav-overlay');
+
+        if (toggle && menu) {
+            function toggleMenu(open) {
+                toggle.classList.toggle('open', open);
+                menu.classList.toggle('active', open);
+                overlay && overlay.classList.toggle('active', open);
+                document.body.style.overflow = open ? 'hidden' : '';
+            }
+            toggle.addEventListener('click', () => toggleMenu(!menu.classList.contains('active')));
+            overlay && overlay.addEventListener('click', () => toggleMenu(false));
+        }
     </script>
 
     <%- include('partials/footer') %>

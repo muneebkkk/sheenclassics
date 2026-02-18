@@ -1,95 +1,252 @@
 <%- include('../partials/header') %>
 
     <main>
-        <section class="section">
+        <section class="section" style="padding-top:3rem;">
             <div class="container admin-container">
-                <div class="admin-header">
-                    <h1 class="section-title" style="margin: 0;">Manage Products</h1>
-                    <a href="/admin/products/add" class="btn btn-add-cart">Add New Product</a>
+
+                <!-- Header -->
+                <div class="admin-header reveal">
+                    <div>
+                        <span style="font-size:0.7rem;font-weight:600;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:0.4rem;">Admin Panel</span>
+                        <h1 class="admin-title">Manage <em style="font-family:var(--font-serif);font-style:italic;font-weight:300;">Products</em></h1>
+                    </div>
+                    <div style="display:flex;gap:0.75rem;align-items:center;">
+                        <a href="/admin" style="display:inline-flex;align-items:center;gap:6px;padding:0.7rem 1.3rem;background:transparent;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:0.78rem;font-weight:600;color:var(--text-secondary);text-decoration:none;transition:all 0.25s;"
+                            onmouseover="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-secondary)'">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Dashboard
+                        </a>
+                        <a href="/admin/products/add" class="btn btn-add-cart" style="display:inline-flex;align-items:center;gap:6px;padding:0.7rem 1.4rem;font-size:0.78rem;text-decoration:none;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            <span>Add Product</span>
+                        </a>
+                    </div>
                 </div>
 
+                <!-- Alerts -->
                 <% if (typeof query !== 'undefined' && query.success) { %>
-                    <div class="success-message">
+                    <div class="success-message reveal" style="margin-bottom:1.5rem;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                         <%= query.success %>
                     </div>
                     <% } %>
                         <% if (typeof query !== 'undefined' && query.error) { %>
-                            <div class="error-message">
+                            <div class="error-message reveal" style="margin-bottom:1.5rem;">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
                                 <%= query.error %>
                             </div>
                             <% } %>
 
-                                <div style="background: var(--white); padding: 2rem; border-radius: 10px; box-shadow: var(--shadow);">
+                                <!-- Products Table -->
+                                <div class="reveal" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);overflow:hidden;">
+
+                                    <div style="padding:1.5rem 2rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+                                        <h2 style="font-family:var(--font-serif);font-size:1.4rem;font-weight:400;color:var(--primary);">All Products</h2>
+                                        <span style="font-size:0.8rem;color:var(--text-muted);"><%= products ? products.length : 0 %> total</span>
+                                    </div>
+
                                     <% if (products && products.length > 0) { %>
-                                        <table class="table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Image</th>
-                                                    <th>Name</th>
-                                                    <th>Category</th>
-                                                    <th>Price</th>
-                                                    <th>Stock</th>
-                                                    <th>Featured</th>
-                                                    <th>Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <% products.forEach(product => { %>
+                                        <div style="overflow-x:auto;">
+                                            <table class="table">
+                                                <thead>
                                                     <tr>
-                                                        <td><img src="<%= product.images && product.images[0] ? product.images[0] : '/images/p1.jpeg' %>" alt="<%= product.name %>" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;"></td>
-                                                        <td>
-                                                            <%= product.name %>
-                                                        </td>
-                                                        <td>
-                                                            <%= product.category %>
-                                                        </td>
-                                                        <td>$
-                                                            <%= product.price.toFixed(2) %>
-                                                        </td>
-                                                        <td>
-                                                            <%= product.stock %>
-                                                        </td>
-                                                        <td>
-                                                            <%= product.featured ? 'Yes' : 'No' %>
-                                                        </td>
-                                                        <td>
-                                                            <a href="/admin/products/<%= product._id %>/edit" class="btn" style="background: var(--secondary-color); color: white; padding: 0.5rem 1rem; margin-right: 0.5rem;">Edit</a>
-                                                            <button onclick="deleteProduct('<%= product._id %>')" class="btn" style="background: #f44336; color: white; padding: 0.5rem 1rem;">Delete</button>
-                                                        </td>
+                                                        <th style="width:72px;">Image</th>
+                                                        <th>Product</th>
+                                                        <th>Category</th>
+                                                        <th>Price</th>
+                                                        <th>Stock</th>
+                                                        <th>Featured</th>
+                                                        <th>Actions</th>
                                                     </tr>
-                                                    <% }); %>
-                                            </tbody>
-                                        </table>
+                                                </thead>
+                                                <tbody>
+                                                    <% products.forEach(product => { %>
+                                                        <tr id="product-row-<%= product._id %>">
+                                                            <!-- Image -->
+                                                            <td>
+                                                                <div style="width:56px;height:68px;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border);flex-shrink:0;">
+                                                                    <img src="<%= product.images && product.images[0] ? product.images[0] : '/images/p1.jpeg' %>" alt="<%= product.name %>" style="width:100%;height:100%;object-fit:cover;">
+                                                                </div>
+                                                            </td>
+
+                                                            <!-- Name -->
+                                                            <td>
+                                                                <div style="font-family:var(--font-serif);font-size:0.95rem;font-weight:400;color:var(--primary);margin-bottom:2px;">
+                                                                    <%= product.name %>
+                                                                </div>
+                                                                <div style="font-size:0.72rem;color:var(--text-muted);">ID:
+                                                                    <%= product._id.toString().substring(0,8) %>
+                                                                </div>
+                                                            </td>
+
+                                                            <!-- Category -->
+                                                            <td>
+                                                                <span style="font-size:0.75rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold);background:var(--gold-pale);border:1px solid var(--border-gold);padding:3px 10px;border-radius:99px;">
+                                        <%= product.category %>
+                                    </span>
+                                                            </td>
+
+                                                            <!-- Price -->
+                                                            <td>
+                                                                <div style="font-weight:600;color:var(--primary);font-size:0.92rem;">Rs
+                                                                    <%= product.price.toFixed(2) %>
+                                                                </div>
+                                                                <% if (product.originalPrice && product.originalPrice > product.price) { %>
+                                                                    <div style="font-size:0.75rem;color:var(--text-muted);text-decoration:line-through;">Rs
+                                                                        <%= product.originalPrice.toFixed(2) %>
+                                                                    </div>
+                                                                    <% } %>
+                                                            </td>
+
+                                                            <!-- Stock -->
+                                                            <td>
+                                                                <% if (product.stock === 0) { %>
+                                                                    <span style="font-size:0.78rem;font-weight:600;color:#c0392b;background:rgba(192,57,43,0.08);padding:3px 10px;border-radius:99px;border:1px solid rgba(192,57,43,0.2);">Out of Stock</span>
+                                                                    <% } else if (product.stock <= 5) { %>
+                                                                        <span style="font-size:0.78rem;font-weight:600;color:#c17f0a;background:rgba(193,127,10,0.08);padding:3px 10px;border-radius:99px;border:1px solid rgba(193,127,10,0.2);">Low: <%= product.stock %></span>
+                                                                        <% } else { %>
+                                                                            <span style="font-size:0.85rem;font-weight:500;color:var(--text-secondary);"><%= product.stock %></span>
+                                                                            <% } %>
+                                                            </td>
+
+                                                            <!-- Featured -->
+                                                            <td>
+                                                                <% if (product.featured) { %>
+                                                                    <span style="display:inline-flex;align-items:center;gap:4px;font-size:0.75rem;font-weight:600;color:#1a7a45;background:rgba(39,174,96,0.08);padding:3px 10px;border-radius:99px;border:1px solid rgba(39,174,96,0.2);">
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                        Featured
+                                    </span>
+                                                                    <% } else { %>
+                                                                        <span style="font-size:0.78rem;color:var(--text-muted);">—</span>
+                                                                        <% } %>
+                                                            </td>
+
+                                                            <!-- Actions -->
+                                                            <td>
+                                                                <div style="display:flex;gap:0.5rem;align-items:center;">
+                                                                    <a href="/admin/products/<%= product._id %>/edit" style="display:inline-flex;align-items:center;gap:4px;padding:0.4rem 0.9rem;background:var(--gold-pale);border:1px solid var(--border-gold);color:var(--primary);border-radius:var(--radius-sm);font-size:0.72rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;text-decoration:none;transition:all 0.2s;white-space:nowrap;"
+                                                                        onmouseover="this.style.background='var(--gold)';this.style.borderColor='var(--gold)'" onmouseout="this.style.background='var(--gold-pale)';this.style.borderColor='var(--border-gold)'">
+                                                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>                                                                        Edit
+                                                                    </a>
+                                                                    <button onclick="deleteProduct('<%= product._id %>')" style="display:inline-flex;align-items:center;gap:4px;padding:0.4rem 0.9rem;background:transparent;border:1px solid rgba(192,57,43,0.25);color:#c0392b;border-radius:var(--radius-sm);font-size:0.72rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;font-family:var(--font-body);transition:all 0.2s;white-space:nowrap;"
+                                                                        onmouseover="this.style.background='rgba(192,57,43,0.07)';this.style.borderColor='rgba(192,57,43,0.5)'" onmouseout="this.style.background='transparent';this.style.borderColor='rgba(192,57,43,0.25)'">
+                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                                            Delete
+                                        </button>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <% }); %>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
                                         <% } else { %>
-                                            <p style="text-align: center; padding: 2rem; color: var(--text-light);">No products found. <a href="/admin/products/add">Add your first product</a></p>
+                                            <div class="empty-state" style="padding:4rem 2rem;">
+                                                <div class="empty-state-icon">📦</div>
+                                                <h3>No products yet</h3>
+                                                <p style="margin-bottom:1.5rem;">Add your first product to get started.</p>
+                                                <a href="/admin/products/add" class="btn btn-add-cart" style="display:inline-flex;align-items:center;gap:6px;padding:0.8rem 2rem;text-decoration:none;">
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                                    <span>Add First Product</span>
+                                                </a>
+                                            </div>
                                             <% } %>
                                 </div>
+
             </div>
         </section>
     </main>
 
+    <!-- Delete confirm modal -->
+    <div id="delete-modal" style="display:none;position:fixed;inset:0;z-index:9998;align-items:center;justify-content:center;">
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);" onclick="closeDeleteModal()"></div>
+        <div style="position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:2.5rem;max-width:420px;width:90%;box-shadow:var(--shadow-lg);animation:fadeInUp 0.3s var(--ease-out);">
+            <div style="width:52px;height:52px;background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+            </div>
+            <h3 style="font-family:var(--font-serif);font-size:1.4rem;font-weight:400;text-align:center;margin-bottom:0.6rem;color:var(--primary);">Delete Product?</h3>
+            <p style="font-size:0.88rem;color:var(--text-muted);text-align:center;margin-bottom:2rem;line-height:1.6;">This action cannot be undone. The product and all associated data will be permanently removed.</p>
+            <div style="display:flex;gap:0.75rem;">
+                <button onclick="closeDeleteModal()" style="flex:1;padding:0.85rem;background:transparent;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:0.82rem;font-weight:600;color:var(--text-secondary);cursor:pointer;transition:all 0.2s;"
+                    onmouseover="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-secondary)'">
+                Cancel
+            </button>
+                <button id="confirm-delete-btn" style="flex:1;padding:0.85rem;background:#c0392b;border:none;border-radius:var(--radius-sm);font-family:var(--font-body);font-size:0.82rem;font-weight:700;color:#fff;cursor:pointer;transition:all 0.2s;letter-spacing:0.06em;text-transform:uppercase;"
+                    onmouseover="this.style.background='#a93226'" onmouseout="this.style.background='#c0392b'">
+                Delete
+            </button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        async function deleteProduct(productId) {
-            if (!confirm('Are you sure you want to delete this product?')) {
-                return;
-            }
+        let pendingDeleteId = null;
+
+        function deleteProduct(productId) {
+            pendingDeleteId = productId;
+            const modal = document.getElementById('delete-modal');
+            modal.style.display = 'flex';
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').style.display = 'none';
+            pendingDeleteId = null;
+        }
+
+        document.getElementById('confirm-delete-btn').addEventListener('click', async() => {
+            if (!pendingDeleteId) return;
+            const btn = document.getElementById('confirm-delete-btn');
+            btn.textContent = 'Deleting…';
+            btn.style.opacity = '0.7';
+            btn.disabled = true;
 
             try {
-                const response = await fetch(`/admin/products/${productId}`, {
+                const response = await fetch(`/admin/products/${pendingDeleteId}`, {
                     method: 'DELETE'
                 });
-
                 const data = await response.json();
-
                 if (data.success) {
-                    location.reload();
+                    // Fade out row
+                    const row = document.getElementById('product-row-' + pendingDeleteId);
+                    if (row) {
+                        row.style.transition = 'opacity 0.4s, transform 0.4s';
+                        row.style.opacity = '0';
+                        row.style.transform = 'translateX(20px)';
+                        setTimeout(() => {
+                            row.remove();
+                        }, 400);
+                    }
+                    closeDeleteModal();
+                    showNotification('Product deleted successfully', 'success');
                 } else {
-                    alert(data.message);
+                    showNotification(data.message || 'Failed to delete', 'error');
+                    closeDeleteModal();
                 }
             } catch (error) {
-                alert('Failed to delete product');
+                showNotification('Failed to delete product', 'error');
+                closeDeleteModal();
             }
-        }
+        });
+
+        // Scroll reveal
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('visible');
+                    revealObserver.unobserve(e.target);
+                }
+            });
+        }, {
+            threshold: 0.08
+        });
+        document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('scrolled', window.scrollY > 30);
+        }, {
+            passive: true
+        });
     </script>
 
     <%- include('../partials/footer') %>

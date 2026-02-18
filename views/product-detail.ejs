@@ -1,100 +1,188 @@
 <%- include('partials/header') %>
 
     <main>
-        <section class="section">
+        <section class="section" style="padding-top:3rem;">
             <div class="container">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start;">
-                    <div>
-                        <div class="image-gallery" style="position: relative;">
-                            <div class="gallery-main" style="position: relative; overflow: hidden; border-radius: 10px; box-shadow: var(--shadow-lg);">
-                                <button class="gallery-btn prev" aria-label="Previous image" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); color: white; border: none; width: 44px; height: 44px; border-radius: 50%; z-index: 10; cursor: pointer;">‹</button>
-                                <button class="gallery-btn next" aria-label="Next image" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); color: white; border: none; width: 44px; height: 44px; border-radius: 50%; z-index: 10; cursor: pointer;">›</button>
-                                <img id="gallery-image" src="<%= product.images && product.images[0] ? product.images[0] : '/images/p1.jpeg' %>" alt="<%= product.name %>" style="width: 100%; display: block;">
-                            </div>
 
+                <!-- Breadcrumb -->
+                <nav style="display:flex;align-items:center;gap:0.5rem;font-size:0.75rem;color:var(--text-muted);margin-bottom:2.5rem;letter-spacing:0.05em;" class="reveal">
+                    <a href="/" style="color:var(--text-muted);transition:color 0.2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">Home</a>
+                    <span style="opacity:0.4;">›</span>
+                    <a href="/products" style="color:var(--text-muted);transition:color 0.2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">Products</a>
+                    <span style="opacity:0.4;">›</span>
+                    <span style="color:var(--text-primary);"><%= product.name %></span>
+                </nav>
+
+                <!-- Product Layout -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start;">
+
+                    <!-- ── Gallery ── -->
+                    <div class="reveal">
+                        <div class="gallery-main" style="position:relative;overflow:hidden;border-radius:var(--radius-xl);background:var(--cream);aspect-ratio:3/4;">
+                            <img id="gallery-image" src="<%= product.images && product.images[0] ? product.images[0] : '/images/p1.jpeg' %>" alt="<%= product.name %>" style="width:100%;height:100%;object-fit:cover;transition:opacity 0.35s ease;">
+
+                            <!-- Nav arrows -->
                             <% if (product.images && product.images.length > 1) { %>
-                                <div class="gallery-thumbs" style="display: flex; gap: 0.5rem; margin-top: 0.75rem; overflow-x: auto;">
-                                    <% product.images.forEach(function(img, idx) { %>
-                                        <button class="thumb-btn" data-index="<%= idx %>" style="border: none; padding: 0; background: transparent; cursor: pointer;">
-                                        <img src="<%= img %>" alt="thumb-<%= idx %>" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px; border: 2px solid <%= idx === 0 ? 'var(--secondary-color)' : 'transparent' %>;">
-                                    </button>
-                                        <% }); %>
-                                </div>
+                                <button class="gallery-btn prev" aria-label="Previous" style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.92);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm);transition:all 0.25s;z-index:5;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                        </button>
+                                <button class="gallery-btn next" aria-label="Next" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.92);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm);transition:all 0.25s;z-index:5;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                        </button>
                                 <% } %>
+
+                                    <!-- Counter -->
+                                    <% if (product.images && product.images.length > 1) { %>
+                                        <div id="img-counter" style="position:absolute;bottom:1rem;right:1rem;background:rgba(0,0,0,0.5);color:#fff;font-size:0.72rem;font-weight:500;padding:4px 10px;border-radius:99px;backdrop-filter:blur(8px);">
+                                            1 /
+                                            <%= product.images.length %>
+                                        </div>
+                                        <% } %>
+
+                                            <!-- Sale badge -->
+                                            <% if (product.originalPrice && product.originalPrice > product.price) { %>
+                                                <span style="position:absolute;top:1rem;left:1rem;background:var(--primary);color:var(--gold);font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:5px 12px;border-radius:99px;">Sale</span>
+                                                <% } %>
                         </div>
+
+                        <!-- Thumbnails -->
+                        <% if (product.images && product.images.length > 1) { %>
+                            <div class="gallery-thumbs" style="display:flex;gap:0.6rem;margin-top:1rem;overflow-x:auto;padding-bottom:4px;">
+                                <% product.images.forEach(function(img, idx) { %>
+                                    <button class="thumb-btn" data-index="<%= idx %>" style="flex-shrink:0;border:2px solid <%= idx===0 ? 'var(--gold)' : 'transparent' %>;border-radius:var(--radius);padding:0;background:none;cursor:pointer;border-radius:var(--radius);overflow:hidden;transition:border-color 0.2s;">
+                            <img src="<%= img %>" alt="thumb-<%= idx %>" style="width:72px;height:90px;object-fit:cover;display:block;">
+                        </button>
+                                    <% }); %>
+                            </div>
+                            <% } %>
                     </div>
-                    <div>
-                        <h1 style="font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-bottom: 1rem;">
+
+                    <!-- ── Product Info ── -->
+                    <div class="reveal reveal-delay-2">
+                        <span style="font-size:0.72rem;font-weight:600;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold);margin-bottom:0.8rem;display:block;"><%= product.category %></span>
+
+                        <h1 style="font-family:var(--font-serif);font-size:clamp(2rem,4vw,3rem);font-weight:300;line-height:1.15;color:var(--primary);margin-bottom:1.5rem;">
                             <%= product.name %>
                         </h1>
-                        <p style="color: var(--text-light); margin-bottom: 1.5rem; font-size: 1.1rem;">
-                            <%= product.category %>
-                        </p>
-                        <div style="margin-bottom: 2rem;">
-                            <span style="font-size: 2.5rem; font-weight: 700; color: var(--secondary-color);">Rs<%= product.price.toFixed(2) %></span>
+
+                        <!-- Price -->
+                        <div style="display:flex;align-items:baseline;gap:1rem;margin-bottom:2rem;padding-bottom:2rem;border-bottom:1px solid var(--border);">
+                            <span style="font-size:2.2rem;font-weight:600;color:var(--primary);">Rs <%= product.price.toFixed(2) %></span>
                             <% if (product.originalPrice && product.originalPrice > product.price) { %>
-                                <span style="font-size: 1.5rem; color: var(--text-light); text-decoration: line-through; margin-left: 1rem;">Rs<%= product.originalPrice.toFixed(2) %></span>
+                                <span style="font-size:1.2rem;color:var(--text-muted);text-decoration:line-through;">Rs <%= product.originalPrice.toFixed(2) %></span>
+                                <span style="font-size:0.8rem;font-weight:700;color:#1a7a45;background:rgba(39,174,96,0.1);padding:4px 10px;border-radius:99px;">
+                            Save Rs <%= (product.originalPrice - product.price).toFixed(2) %>
+                        </span>
                                 <% } %>
                         </div>
-                        <p style="margin-bottom: 2rem; line-height: 1.8; color: var(--text-dark);">
+
+                        <!-- Description -->
+                        <p style="font-size:0.95rem;line-height:1.85;color:var(--text-secondary);margin-bottom:2rem;">
                             <%= product.description %>
                         </p>
 
+                        <!-- Size Selector -->
                         <% if (product.sizes && product.sizes.length > 0) { %>
-                            <div class="form-group" style="margin-bottom: 1.5rem;">
-                                <label>Size:</label>
-                                <select id="product-size" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 5px;">
-                            <% product.sizes.forEach(size => { %>
-                            <option value="<%= size %>"><%= size %></option>
-                            <% }); %>
-                        </select>
+                            <div style="margin-bottom:1.5rem;">
+                                <label style="font-size:0.72rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);display:block;margin-bottom:0.8rem;">Select Size</label>
+                                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;" id="size-options">
+                                    <% product.sizes.forEach((size, i) => { %>
+                                        <button onclick="selectSize(this, '<%= size %>')" data-size="<%= size %>" style="min-width:48px;height:48px;padding:0 1rem;border:<%= i===0?'2px solid var(--primary)':'1.5px solid var(--border)' %>;border-radius:var(--radius-sm);background:<%= i===0?'var(--primary)':'#fff' %>;color:<%= i===0?'#fff':'var(--text-primary)' %>;font-family:var(--font-body);font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.2s;">
+                                <%= size %>
+                            </button>
+                                        <% }); %>
+                                </div>
+                                <input type="hidden" id="product-size" value="<%= product.sizes[0] %>">
                             </div>
                             <% } %>
 
+                                <!-- Color Selector -->
                                 <% if (product.colors && product.colors.length > 0) { %>
-                                    <div class="form-group" style="margin-bottom: 1.5rem;">
-                                        <label>Color:</label>
-                                        <select id="product-color" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 5px;">
-                            <% product.colors.forEach(color => { %>
-                            <option value="<%= color %>"><%= color %></option>
-                            <% }); %>
-                        </select>
+                                    <div style="margin-bottom:2rem;">
+                                        <label style="font-size:0.72rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-muted);display:block;margin-bottom:0.8rem;">Select Color</label>
+                                        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;" id="color-options">
+                                            <% product.colors.forEach((color, i) => { %>
+                                                <button onclick="selectColor(this, '<%= color %>')" data-color="<%= color %>" style="padding:0.45rem 1.1rem;border:<%= i===0?'2px solid var(--primary)':'1.5px solid var(--border)' %>;border-radius:var(--radius-sm);background:<%= i===0?'var(--primary)':'#fff' %>;color:<%= i===0?'#fff':'var(--text-primary)' %>;font-family:var(--font-body);font-size:0.82rem;font-weight:500;cursor:pointer;transition:all 0.2s;">
+                                <%= color %>
+                            </button>
+                                                <% }); %>
+                                        </div>
+                                        <input type="hidden" id="product-color" value="<%= product.colors[0] %>">
                                     </div>
                                     <% } %>
 
-                                        <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
-                                            <button class="btn btn-add-cart" style="flex: 1; padding: 1rem; font-size: 1.1rem;" onclick="addToCart('<%= product._id %>', document.getElementById('product-size')?.value || '', document.getElementById('product-color')?.value || '')">Add to Cart</button>
-                                            <button class="btn btn-wishlist" style="width: 60px; font-size: 1.5rem;" onclick="addToWishlist('<%= product._id %>')">♡</button>
+                                        <!-- CTA Buttons -->
+                                        <div style="display:flex;gap:0.75rem;margin-bottom:2rem;">
+                                            <button class="btn btn-add-cart" style="flex:1;padding:1rem 1.5rem;font-size:0.88rem;border-radius:var(--radius-sm);" onclick="addToCart('<%= product._id %>', document.getElementById('product-size')?.value || '', document.getElementById('product-color')?.value || '')">
+                            <span>Add to Cart</span>
+                        </button>
+                                            <button class="btn btn-wishlist" style="width:52px;height:52px;font-size:1.3rem;border-radius:var(--radius-sm);" onclick="addToWishlist('<%= product._id %>')" title="Add to Wishlist">♡</button>
                                         </div>
 
-                                        <div style="background: var(--accent-color); padding: 1.5rem; border-radius: 10px;">
-                                            <p style="margin-bottom: 0.5rem;"><strong>Stock:</strong>
-                                                <%= product.stock %> available</p>
-                                            <% if (product.stock === 0) { %>
-                                                <p style="color: #f44336;">Out of Stock</p>
-                                                <% } %>
+                                        <!-- Stock / Meta -->
+                                        <div style="background:var(--cream);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.4rem;display:flex;flex-direction:column;gap:0.8rem;">
+                                            <div style="display:flex;align-items:center;justify-content:space-between;">
+                                                <span style="font-size:0.78rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);">Availability</span>
+                                                <% if (product.stock > 0) { %>
+                                                    <span style="font-size:0.82rem;font-weight:600;color:#1a7a45;display:flex;align-items:center;gap:5px;">
+                                <span style="width:7px;height:7px;background:#27ae60;border-radius:50%;display:inline-block;"></span> In Stock (
+                                                    <%= product.stock %> available)
+                                                        </span>
+                                                        <% } else { %>
+                                                            <span style="font-size:0.82rem;font-weight:600;color:#c0392b;display:flex;align-items:center;gap:5px;">
+                                <span style="width:7px;height:7px;background:#e74c3c;border-radius:50%;display:inline-block;"></span> Out of Stock
+                                                            </span>
+                                                            <% } %>
+                                            </div>
+                                            <div style="display:flex;align-items:center;justify-content:space-between;padding-top:0.8rem;border-top:1px solid var(--border);">
+                                                <span style="font-size:0.78rem;color:var(--text-muted);display:flex;align-items:center;gap:5px;">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+                                Nationwide Delivery
+                            </span>
+                                                <span style="font-size:0.78rem;color:var(--text-muted);display:flex;align-items:center;gap:5px;">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                                Handcrafted Quality
+                            </span>
+                                            </div>
                                         </div>
                     </div>
                 </div>
 
+                <!-- ── Related Products ── -->
                 <% if (relatedProducts && relatedProducts.length > 0) { %>
-                    <div style="margin-top: 5rem;">
-                        <h2 class="section-title">Related Products</h2>
+                    <div style="margin-top:6rem;">
+                        <div class="section-header reveal" style="margin-bottom:3rem;">
+                            <span class="section-eyebrow">You may also like</span>
+                            <h2 class="section-title">Related <em>Pieces</em></h2>
+                            <div class="section-divider"></div>
+                        </div>
+
                         <div class="product-grid">
-                            <% relatedProducts.forEach(product => { %>
-                                <div class="product-card" onclick="window.location.href='/products/<%= product._id %>'">
-                                    <img src="<%= product.images && product.images[0] ? product.images[0] : '/images/p1.jpeg' %>" alt="<%= product.name %>" class="product-image">
+                            <% relatedProducts.forEach((rp, i) => { %>
+                                <div class="product-card reveal reveal-delay-<%= Math.min(i % 4 + 1, 4) %>" onclick="window.location.href='/products/<%= rp._id %>'">
+                                    <div class="product-image-wrap">
+                                        <img src="<%= rp.images && rp.images[0] ? rp.images[0] : '/images/p1.jpeg' %>" alt="<%= rp.name %>" class="product-image" loading="lazy">
+                                        <div class="product-overlay">
+                                            <button class="product-quick-add" onclick="event.stopPropagation(); addToCart('<%= rp._id %>')">Quick Add</button>
+                                        </div>
+                                    </div>
                                     <div class="product-info">
+                                        <p class="product-category">
+                                            <%= rp.category %>
+                                        </p>
                                         <h3 class="product-name">
-                                            <%= product.name %>
+                                            <%= rp.name %>
                                         </h3>
                                         <div class="product-price">
                                             Rs
-                                            <%= product.price.toFixed(2) %>
+                                            <%= rp.price.toFixed(2) %>
+                                                <% if (rp.originalPrice && rp.originalPrice > rp.price) { %>
+                                                    <span class="original">Rs <%= rp.originalPrice.toFixed(2) %></span>
+                                                    <% } %>
                                         </div>
                                         <div class="product-actions">
-                                            <button class="btn btn-add-cart" onclick="event.stopPropagation(); addToCart('<%= product._id %>')">Add to Cart</button>
-                                            <button class="btn btn-wishlist" onclick="event.stopPropagation(); addToWishlist('<%= product._id %>')">♡</button>
+                                            <button class="btn btn-add-cart" onclick="event.stopPropagation(); addToCart('<%= rp._id %>')"><span>Add to Cart</span></button>
+                                            <button class="btn btn-wishlist" onclick="event.stopPropagation(); addToWishlist('<%= rp._id %>')">♡</button>
                                         </div>
                                     </div>
                                 </div>
@@ -102,95 +190,156 @@
                         </div>
                     </div>
                     <% } %>
+
             </div>
         </section>
     </main>
 
-    <%- include('partials/footer') %>
+    <script>
+        // ── Size & Color selectors
+        function selectSize(btn, size) {
+            document.querySelectorAll('#size-options button').forEach(b => {
+                b.style.background = '#fff';
+                b.style.color = 'var(--text-primary)';
+                b.style.border = '1.5px solid var(--border)';
+            });
+            btn.style.background = 'var(--primary)';
+            btn.style.color = '#fff';
+            btn.style.border = '2px solid var(--primary)';
+            document.getElementById('product-size').value = size;
+        }
 
-        <script>
-            // Product image gallery: click buttons, thumbnails, arrow keys, swipe
-            (function() {
-                const images = [
-                    <% if (product.images && product.images.length) { %>
-                    <% product.images.forEach(function(img, idx) { %>
-                    '<%= img %>'
-                    <% if (idx < product.images.length - 1) { %>, <% } %>
-                    <% }); %>
-                    <% } else { %>
-                    '/images/p1.jpeg'
-                    <% } %>
-                ];
+        function selectColor(btn, color) {
+            document.querySelectorAll('#color-options button').forEach(b => {
+                b.style.background = '#fff';
+                b.style.color = 'var(--text-primary)';
+                b.style.border = '1.5px solid var(--border)';
+            });
+            btn.style.background = 'var(--primary)';
+            btn.style.color = '#fff';
+            btn.style.border = '2px solid var(--primary)';
+            document.getElementById('product-color').value = color;
+        }
 
-                const galleryImage = document.getElementById('gallery-image');
-                const prevBtn = document.querySelector('.gallery-btn.prev');
-                const nextBtn = document.querySelector('.gallery-btn.next');
-                const thumbBtns = Array.from(document.querySelectorAll('.thumb-btn'));
-                let current = 0;
+        // ── Image gallery
+        (function() {
+            const images = [
+                <% if (product.images && product.images.length) { %>
+                <% product.images.forEach(function(img, idx) { %>
+                '<%= img %>'
+                <% if (idx < product.images.length - 1) { %>, <% } %>
+                <% }); %>
+                <% } else { %>
+                '/images/p1.jpeg'
+                <% } %>
+            ];
 
-                function showImage(index) {
-                    if (!images || images.length === 0) return;
-                    current = (index + images.length) % images.length;
+            const galleryImage = document.getElementById('gallery-image');
+            const prevBtn = document.querySelector('.gallery-btn.prev');
+            const nextBtn = document.querySelector('.gallery-btn.next');
+            const thumbBtns = Array.from(document.querySelectorAll('.thumb-btn'));
+            const counter = document.getElementById('img-counter');
+            let current = 0;
+
+            function showImage(index) {
+                if (!images.length) return;
+                current = (index + images.length) % images.length;
+                galleryImage.style.opacity = '0';
+                setTimeout(() => {
                     galleryImage.src = images[current];
-                    // update active thumb border
-                    thumbBtns.forEach(btn => {
-                        const imgEl = btn.querySelector('img');
-                        btn.style.outline = 'none';
-                        if (parseInt(btn.dataset.index, 10) === current) {
-                            imgEl.style.border = '2px solid var(--secondary-color)';
-                        } else {
-                            imgEl.style.border = '2px solid transparent';
-                        }
-                    });
-                }
-
-                function showNext() {
-                    showImage(current + 1);
-                }
-
-                function showPrev() {
-                    showImage(current - 1);
-                }
-
-                if (nextBtn) nextBtn.addEventListener('click', showNext);
-                if (prevBtn) prevBtn.addEventListener('click', showPrev);
-
-                // Thumbnails click
+                    galleryImage.style.opacity = '1';
+                }, 180);
                 thumbBtns.forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const idx = parseInt(this.dataset.index, 10);
-                        showImage(idx);
-                    });
+                    const img = btn.querySelector('img');
+                    const active = parseInt(btn.dataset.index) === current;
+                    btn.style.borderColor = active ? 'var(--gold)' : 'transparent';
                 });
+                if (counter) counter.textContent = `${current + 1} / ${images.length}`;
+            }
 
-                // Keyboard navigation
-                document.addEventListener('keydown', function(e) {
-                    if (e.key === 'ArrowLeft') showPrev();
-                    if (e.key === 'ArrowRight') showNext();
+            if (nextBtn) nextBtn.addEventListener('click', () => showImage(current + 1));
+            if (prevBtn) prevBtn.addEventListener('click', () => showImage(current - 1));
+
+            thumbBtns.forEach(btn => btn.addEventListener('click', () => showImage(parseInt(btn.dataset.index))));
+
+            document.addEventListener('keydown', e => {
+                if (e.key === 'ArrowLeft') showImage(current - 1);
+                if (e.key === 'ArrowRight') showImage(current + 1);
+            });
+
+            let touchStartX = 0;
+            const galleryMain = document.querySelector('.gallery-main');
+            if (galleryMain) {
+                galleryMain.addEventListener('touchstart', e => {
+                    touchStartX = e.changedTouches[0].screenX;
+                }, {
+                    passive: true
                 });
+                galleryMain.addEventListener('touchend', e => {
+                    const dx = e.changedTouches[0].screenX - touchStartX;
+                    if (Math.abs(dx) > 40) dx < 0 ? showImage(current + 1) : showImage(current - 1);
+                });
+            }
 
-                // Touch swipe
-                let touchStartX = 0;
-                let touchEndX = 0;
-                const galleryMain = document.querySelector('.gallery-main');
-                if (galleryMain) {
-                    galleryMain.addEventListener('touchstart', function(e) {
-                        touchStartX = e.changedTouches[0].screenX;
-                    }, {
-                        passive: true
-                    });
+            // Gallery nav arrow hover
+            [prevBtn, nextBtn].forEach(btn => {
+                if (!btn) return;
+                btn.addEventListener('mouseenter', () => {
+                    btn.style.background = 'var(--gold)';
+                });
+                btn.addEventListener('mouseleave', () => {
+                    btn.style.background = 'rgba(255,255,255,0.92)';
+                });
+            });
 
-                    galleryMain.addEventListener('touchend', function(e) {
-                        touchEndX = e.changedTouches[0].screenX;
-                        const dx = touchEndX - touchStartX;
-                        if (Math.abs(dx) > 40) {
-                            if (dx < 0) showNext();
-                            else showPrev();
-                        }
-                    });
+            showImage(0);
+        })();
+
+        // ── Scroll reveal
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('visible');
+                    revealObserver.unobserve(e.target);
                 }
+            });
+        }, {
+            threshold: 0.08
+        });
+        document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
-                // Init
-                showImage(0);
-            })();
-        </script>
+        // ── Navbar
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('scrolled', window.scrollY > 30);
+        }, {
+            passive: true
+        });
+
+        // ── Mobile menu
+        const toggle = document.querySelector('.mobile-menu-toggle');
+        const menu = document.querySelector('.nav-menu');
+        const overlay = document.querySelector('.nav-overlay');
+        if (toggle && menu) {
+            function toggleMenu(open) {
+                toggle.classList.toggle('open', open);
+                menu.classList.toggle('active', open);
+                overlay && overlay.classList.toggle('active', open);
+                document.body.style.overflow = open ? 'hidden' : '';
+            }
+            toggle.addEventListener('click', () => toggleMenu(!menu.classList.contains('active')));
+            overlay && overlay.addEventListener('click', () => toggleMenu(false));
+        }
+    </script>
+
+    <!-- Responsive product layout -->
+    <style>
+        @media (max-width: 768px) {
+            .product-detail-grid {
+                grid-template-columns: 1fr !important;
+                gap: 2rem !important;
+            }
+        }
+    </style>
+
+    <%- include('partials/footer') %>
