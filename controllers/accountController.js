@@ -6,7 +6,12 @@ const Wishlist = require('../models/Wishlist');
 exports.getAccount = async(req, res) => {
     try {
         const { tab } = req.query;
-        const activeTab = tab || (req.session.userId ? 'profile' : 'cart');
+        let activeTab = tab || (req.session.userId ? 'profile' : 'cart');
+
+        // For anonymous users, only allow cart and wishlist tabs
+        if (!req.session.userId && (activeTab === 'profile' || activeTab === 'orders')) {
+            activeTab = 'cart';
+        }
 
         let user = null;
         if (req.session.userId) {

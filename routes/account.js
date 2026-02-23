@@ -7,4 +7,3 @@ router.get('/', accountController.getAccount);
 router.post('/update', isAuthenticated, accountController.updateAccount);
 
 module.exports = router;
-
