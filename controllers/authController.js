@@ -44,7 +44,7 @@ exports.postLogin = async(req, res) => {
         // Merge anonymous cart and wishlist with user account
         try {
             // Merge cart
-            const sessionCart = await Cart.findOne({ sessionId: req.session.id });
+            const sessionCart = await Cart.findOne({ sessionId: req.sessionID });
             const userCart = await Cart.findOne({ user: user._id });
 
             if (sessionCart) {
@@ -63,7 +63,7 @@ exports.postLogin = async(req, res) => {
                         }
                     });
                     await userCart.save();
-                    await Cart.deleteOne({ sessionId: req.session.id });
+                    await Cart.deleteOne({ sessionId: req.sessionID });
                 } else {
                     // Convert session cart to user cart
                     sessionCart.user = user._id;
@@ -73,7 +73,7 @@ exports.postLogin = async(req, res) => {
             }
 
             // Merge wishlist
-            const sessionWishlist = await Wishlist.findOne({ sessionId: req.session.id });
+            const sessionWishlist = await Wishlist.findOne({ sessionId: req.sessionID });
             const userWishlist = await Wishlist.findOne({ user: user._id });
 
             if (sessionWishlist) {
@@ -85,7 +85,7 @@ exports.postLogin = async(req, res) => {
                         }
                     });
                     await userWishlist.save();
-                    await Wishlist.deleteOne({ sessionId: req.session.id });
+                    await Wishlist.deleteOne({ sessionId: req.sessionID });
                 } else {
                     // Convert session wishlist to user wishlist
                     sessionWishlist.user = user._id;

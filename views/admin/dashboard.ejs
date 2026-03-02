@@ -91,6 +91,7 @@
                                         <th>Total</th>
                                         <th>Status</th>
                                         <th>Date</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -101,15 +102,33 @@
                                             </td>
                                             <td>
                                                 <div style="font-weight:500;color:var(--text-primary);font-size:0.9rem;">
-                                                    <%= order.user.name %>
+                                                    <% if (order.user && order.user.name) { %>
+                                                        <%= order.user.name %>
+                                                            <% } else if (order.guestInfo && order.guestInfo.name) { %>
+                                                                <%= order.guestInfo.name %> <small style="color:var(--text-muted);">(Guest)</small>
+                                                                    <% } else { %>
+                                                                        Unknown
+                                                                        <% } %>
                                                 </div>
                                             </td>
                                             <td>
                                                 <span style="font-weight:600;color:var(--primary);">Rs <%= order.total.toFixed(2) %></span>
                                             </td>
-                                            <td><span class="badge badge-<%= order.status %>"><%= order.status %></span></td>
+                                            <td>
+                                                <select onchange="updateStatus('<%= order._id %>', this.value)" style="padding:0.2rem 0.5rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:#fff;font-size:0.78rem;">
+                                                    <option value="pending" <% if (order.status === 'pending') { %>selected<% } %>>Pending</option>
+                                                    <option value="processing" <% if (order.status === 'processing') { %>selected<% } %>>Processing</option>
+                                                    <option value="shipped" <% if (order.status === 'shipped') { %>selected<% } %>>Shipped</option>
+                                                    <option value="delivered" <% if (order.status === 'delivered') { %>selected<% } %>>Delivered</option>
+                                                    <option value="cancelled" <% if (order.status === 'cancelled') { %>selected<% } %>>Cancelled</option>
+                                                </select>
+                                            </td>
                                             <td style="color:var(--text-muted);font-size:0.82rem;">
                                                 <%= new Date(order.createdAt).toLocaleDateString('en-PK', {day:'numeric',month:'short',year:'numeric'}) %>
+                                            </td>
+                                            <td>
+                                                <button onclick="if(confirm('Cancel this order?')) updateStatus('<%= order._id %>','cancelled')" style="background:transparent;border:1px solid var(--border);padding:4px 8px;border-radius:6px;margin-right:6px;cursor:pointer;font-size:0.78rem;">Cancel</button>
+                                                <a href="/orders/<%= order._id %>" style="color:var(--gold);text-decoration:none;font-size:0.78rem;font-weight:600;">View</a>
                                             </td>
                                         </tr>
                                         <% }); %>
@@ -167,5 +186,32 @@
         });
     </script>
 
-    <%- include('../partials/footer') %>
+    <script>
+        async function updateStatus(orderId, status) {
+            if (!confirm('Change order status to ' + status + '?')) return;
+            try {
+                const response = await fetch(`/admin/orders/${orderId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        status
+                    })
+                });
+                const result = await response.json();
+                if (!result.success) {
+                    alert('Failed to update status: ' + result.message);
+                    location.reload();
+                } else {
+                    location.reload();
+                }
+            } catch (err) {
+                console.error('Error updating status:', err);
+                alert('Failed to update status');
+                location.reload();
+            }
+        }
+    </script>
 
+    <%- include('../partials/footer') %>

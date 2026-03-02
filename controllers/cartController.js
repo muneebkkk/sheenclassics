@@ -48,13 +48,13 @@ exports.addToCart = async(req, res) => {
         if (req.session.userId) {
             cart = await Cart.findOne({ user: req.session.userId }).populate('items.product');
         } else {
-            cart = await Cart.findOne({ sessionId: req.session.id }).populate('items.product');
+            cart = await Cart.findOne({ sessionId: req.sessionID }).populate('items.product');
         }
 
         if (!cart) {
             cart = new Cart({
                 user: req.session.userId || null,
-                sessionId: req.session.userId ? null : req.session.id,
+                sessionId: req.session.userId ? null : req.sessionID,
                 items: []
             });
         } else {
@@ -94,6 +94,12 @@ exports.addToCart = async(req, res) => {
         }
 
         await cart.save();
+
+        // Ensure session is saved for guests
+        if (!req.session.userId) {
+            req.session.guest = true;
+        }
+
         res.json({ success: true, message: 'Product added to cart' });
     } catch (error) {
         console.error('Error adding to cart:', error);
@@ -110,7 +116,7 @@ exports.updateCartItem = async(req, res) => {
         if (req.session.userId) {
             cart = await Cart.findOne({ user: req.session.userId }).populate('items.product');
         } else {
-            cart = await Cart.findOne({ sessionId: req.session.id }).populate('items.product');
+            cart = await Cart.findOne({ sessionId: req.sessionID }).populate('items.product');
         }
 
         if (!cart) {
@@ -140,6 +146,12 @@ exports.updateCartItem = async(req, res) => {
 
             item.quantity = requestedQuantity;
             await cart.save();
+
+            // Ensure session is saved for guests
+            if (!req.session.userId) {
+                req.session.guest = true;
+            }
+
             res.json({ success: true, message: 'Cart updated' });
         } else {
             res.json({ success: false, message: 'Item not found' });
@@ -159,7 +171,7 @@ exports.removeFromCart = async(req, res) => {
         if (req.session.userId) {
             cart = await Cart.findOne({ user: req.session.userId });
         } else {
-            cart = await Cart.findOne({ sessionId: req.session.id });
+            cart = await Cart.findOne({ sessionId: req.sessionID });
         }
 
         if (!cart) {
@@ -168,6 +180,12 @@ exports.removeFromCart = async(req, res) => {
 
         cart.items = cart.items.filter(item => item._id.toString() !== itemId);
         await cart.save();
+
+        // Ensure session is saved for guests
+        if (!req.session.userId) {
+            req.session.guest = true;
+        }
+
         res.json({ success: true, message: 'Item removed from cart' });
     } catch (error) {
         console.error('Error removing from cart:', error);

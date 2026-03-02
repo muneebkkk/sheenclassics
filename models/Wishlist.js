@@ -22,6 +22,8 @@ const wishlistSchema = new mongoose.Schema({
     }
 });
 
+wishlistSchema.index({ user: 1, sessionId: 1 }, { unique: true });
+
 wishlistSchema.pre('save', function(next) {
     this.updatedAt = Date.now();
     next();

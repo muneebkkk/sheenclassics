@@ -39,6 +39,8 @@ const cartSchema = new mongoose.Schema({
     }
 });
 
+cartSchema.index({ user: 1, sessionId: 1 }, { unique: true });
+
 cartSchema.pre('save', function(next) {
     this.updatedAt = Date.now();
     next();

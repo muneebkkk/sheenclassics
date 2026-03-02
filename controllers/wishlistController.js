@@ -28,13 +28,13 @@ exports.addToWishlist = async(req, res) => {
         if (req.session.userId) {
             wishlist = await Wishlist.findOne({ user: req.session.userId });
         } else {
-            wishlist = await Wishlist.findOne({ sessionId: req.session.id });
+            wishlist = await Wishlist.findOne({ sessionId: req.sessionID });
         }
 
         if (!wishlist) {
             wishlist = new Wishlist({
                 user: req.session.userId || null,
-                sessionId: req.session.userId ? null : req.session.id,
+                sessionId: req.session.userId ? null : req.sessionID,
                 products: []
             });
         }
@@ -45,6 +45,11 @@ exports.addToWishlist = async(req, res) => {
 
         wishlist.products.push(productId);
         await wishlist.save();
+
+        // Ensure session is saved for guests
+        if (!req.session.userId) {
+            req.session.guest = true;
+        }
 
         res.json({ success: true, message: 'Product added to wishlist' });
     } catch (error) {
@@ -62,7 +67,7 @@ exports.removeFromWishlist = async(req, res) => {
         if (req.session.userId) {
             wishlist = await Wishlist.findOne({ user: req.session.userId });
         } else {
-            wishlist = await Wishlist.findOne({ sessionId: req.session.id });
+            wishlist = await Wishlist.findOne({ sessionId: req.sessionID });
         }
 
         if (!wishlist) {
@@ -73,6 +78,11 @@ exports.removeFromWishlist = async(req, res) => {
             id => id.toString() !== productId
         );
         await wishlist.save();
+
+        // Ensure session is saved for guests
+        if (!req.session.userId) {
+            req.session.guest = true;
+        }
 
         res.json({ success: true, message: 'Product removed from wishlist' });
     } catch (error) {

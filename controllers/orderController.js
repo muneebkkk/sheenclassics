@@ -10,7 +10,7 @@ exports.getOrderSummary = async(req, res) => {
         if (req.session.userId) {
             cart = await Cart.findOne({ user: req.session.userId }).populate('items.product');
         } else {
-            cart = await Cart.findOne({ sessionId: req.session.id }).populate('items.product');
+            cart = await Cart.findOne({ sessionId: req.sessionID }).populate('items.product');
         }
 
         if (!cart || cart.items.length === 0) {
@@ -70,7 +70,7 @@ exports.applyCoupon = async(req, res) => {
         if (req.session.userId) {
             cart = await Cart.findOne({ user: req.session.userId }).populate('items.product');
         } else {
-            cart = await Cart.findOne({ sessionId: req.session.id }).populate('items.product');
+            cart = await Cart.findOne({ sessionId: req.sessionID }).populate('items.product');
         }
 
         if (!cart || cart.items.length === 0) {
@@ -128,7 +128,7 @@ exports.createOrder = async(req, res) => {
         if (req.session.userId) {
             cart = await Cart.findOne({ user: req.session.userId }).populate('items.product');
         } else {
-            cart = await Cart.findOne({ sessionId: req.session.id }).populate('items.product');
+            cart = await Cart.findOne({ sessionId: req.sessionID }).populate('items.product');
         }
 
         if (!cart || cart.items.length === 0) {
@@ -297,6 +297,9 @@ exports.createOrder = async(req, res) => {
         cart.items = [];
         await cart.save();
 
+        // Allow guest to view this order
+        req.session.allowedOrderId = order._id.toString();
+
         res.redirect(`/orders/${order._id}`);
     } catch (error) {
         console.error('Error creating order:', error);
@@ -317,7 +320,12 @@ exports.getOrder = async(req, res) => {
             return res.status(404).render('404', { title: 'Order Not Found - SheenClassics' });
         }
 
-        if (order.user._id.toString() !== req.session.userId && !req.session.isAdmin) {
+        // Allow if user owns order, or is admin, or is guest who just placed this order
+        const isOwner = order.user && order.user._id.toString() === req.session.userId;
+        const isAdmin = req.session.isAdmin;
+        const isAllowedGuest = !req.session.userId && req.session.allowedOrderId === req.params.id;
+
+        if (!isOwner && !isAdmin && !isAllowedGuest) {
             return res.status(403).render('error', {
                 title: 'Access Denied - SheenClassics',
                 error: 'You do not have permission to view this order'

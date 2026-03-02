@@ -23,7 +23,7 @@ CLOUDINARY_UPLOAD_PRESET=sheenclassics
 4. Scroll to **Upload presets**
 5. Click **Add upload preset**
 6. Fill in:
-   - **Name**: `sheenclassics` (or match CLOUDINARY_UPLOAD_PRESET in .env)
+   - **Name**: `sheensclassic` (or match CLOUDINARY_UPLOAD_PRESET in .env)
    - **Mode**: Select **Unsigned**
    - **Folder**: `sheenclassics/products` (optional)
 7. Click **Save**

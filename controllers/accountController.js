@@ -27,7 +27,7 @@ exports.getAccount = async(req, res) => {
         if (req.session.userId) {
             cart = await Cart.findOne({ user: req.session.userId }).populate('items.product');
         } else {
-            cart = await Cart.findOne({ sessionId: req.session.id }).populate('items.product');
+            cart = await Cart.findOne({ sessionId: req.sessionID }).populate('items.product');
         }
         if (!cart) {
             cart = { items: [] };
@@ -38,7 +38,7 @@ exports.getAccount = async(req, res) => {
         if (req.session.userId) {
             wishlist = await Wishlist.findOne({ user: req.session.userId }).populate('products');
         } else {
-            wishlist = await Wishlist.findOne({ sessionId: req.session.id }).populate('products');
+            wishlist = await Wishlist.findOne({ sessionId: req.sessionID }).populate('products');
         }
         if (!wishlist) {
             wishlist = { products: [] };

@@ -6,14 +6,14 @@ const { isAuthenticated } = require('../middleware/auth');
 router.get('/summary', orderController.getOrderSummary);
 router.post('/apply-coupon', orderController.applyCoupon);
 
-// Create order - REQUIRES authentication (redirect to login if not logged in)
-router.post('/create', isAuthenticated, orderController.createOrder);
+// Create order - ALLOW unauthenticated users (collect email at checkout)
+router.post('/create', orderController.createOrder);
 // Use controller-level auth check so we always return JSON (no HTML redirects)
 router.post('/:id/cancel', orderController.cancelOrder);
 // My orders redirects to account with orders tab
 router.get('/my-orders', isAuthenticated, (req, res) => {
     res.redirect('/account?tab=orders');
 });
-router.get('/:id', isAuthenticated, orderController.getOrder);
+router.get('/:id', orderController.getOrder);
 
 module.exports = router;
