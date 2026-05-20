@@ -30,7 +30,7 @@ exports.getChatbot = async(req, res) => {
  */
 exports.sendMessage = async(req, res) => {
         try {
-            const message = req.body.message ?.trim();
+            const message = req.body.message ? .trim();
             const conversationHistory = (req.body.history || [])
                 .filter(item => item && item.content)
                 .map(item => ({
@@ -47,20 +47,23 @@ exports.sendMessage = async(req, res) => {
                 });
             }
 
-            const userId = req.session ?.userId || null;
-            logger.info(`Received message from user ${userId || 'guest'}: "${message}"`);
+            const userId = req.session ? .userId || null;
+            const isAdmin = req.session ? .isAdmin || req.body ? .mode === 'admin' || req.body ? .adminMode === true;
+            logger.info(`Received message from ${isAdmin ? 'admin' : 'user'} ${userId || 'guest'}: "${message}"`);
 
             let reply, source, toolsUsed = [];
 
             // Live Groq AI handles the conversation; tools provide store data when needed.
             logger.debug('Calling AI service with context');
-            const contextData = await prepareContextData(userId);
+            const contextData = await prepareContextData(userId, isAdmin);
 
             const aiResult = await aiService.chat(
                 message,
                 conversationHistory,
                 5, // maxIterations
-                contextData
+                contextData,
+                true,
+                isAdmin ? aiService.ADMIN_SYSTEM_PROMPT : null
             );
 
             if (!aiResult.success) {
@@ -84,8 +87,8 @@ exports.sendMessage = async(req, res) => {
                         ...toolCall.arguments,
                         userId: userId,
                         sessionId: req.sessionID,
-                        isAdmin: Boolean(req.session ?.isAdmin),
-                        allowedOrderId: req.session ?.allowedOrderId
+                        isAdmin: Boolean(req.session ? .isAdmin),
+                        allowedOrderId: req.session ? .allowedOrderId
                     };
 
                     const toolResult = await toolService.executeTool(
@@ -168,8 +171,85 @@ Please provide a helpful response based on these results.
 /**
  * Prepare context data for RAG injection into AI prompts
  */
-async function prepareContextData(userId) {
+async function prepareContextData(userId, isAdmin = false) {
     try {
+        if (isAdmin) {
+            const totalProducts = await Product.countDocuments();
+            const lowStockProducts = await Product.find({ stock: { $lt: LOW_STOCK_THRESHOLD } })
+                .select('name stock')
+                .sort({ stock: 1 })
+                .limit(8);
+
+            const bestSellers = await Order.aggregate([
+                { $unwind: '$items' },
+                { $group: { _id: '$items.product', quantity: { $sum: '$items.quantity' } } },
+                { $sort: { quantity: -1 } },
+                { $limit: 8 },
+                {
+                    $lookup: {
+                        from: 'products',
+                        localField: '_id',
+                        foreignField: '_id',
+                        as: 'product'
+                    }
+                },
+                { $unwind: { path: '$product', preserveNullAndEmptyArrays: true } },
+                {
+                    $project: {
+                        name: '$product.name',
+                        quantity: 1,
+                        stock: '$product.stock'
+                    }
+                }
+            ]);
+
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            const trendingProducts = await Order.aggregate([
+                { $match: { createdAt: { $gte: thirtyDaysAgo } } },
+                { $unwind: '$items' },
+                { $group: { _id: '$items.product', quantity: { $sum: '$items.quantity' } } },
+                { $sort: { quantity: -1 } },
+                { $limit: 5 },
+                {
+                    $lookup: {
+                        from: 'products',
+                        localField: '_id',
+                        foreignField: '_id',
+                        as: 'product'
+                    }
+                },
+                { $unwind: { path: '$product', preserveNullAndEmptyArrays: true } },
+                {
+                    $project: {
+                        name: '$product.name',
+                        quantity: 1,
+                        stock: '$product.stock'
+                    }
+                }
+            ]);
+
+            const recentOrders = await Order.find()
+                .sort({ createdAt: -1 })
+                .limit(5)
+                .select('status total createdAt');
+
+            return {
+                adminSummary: {
+                    totalProducts,
+                    lowStockProducts: lowStockProducts.map(p => ({ name: p.name, stock: p.stock })),
+                    bestSellers: bestSellers.map(item => ({ name: item.name || 'Unknown product', quantity: item.quantity, stock: item.stock })),
+                    trendingProducts: trendingProducts.map(item => ({ name: item.name || 'Unknown product', quantity: item.quantity, stock: item.stock })),
+                    recentOrders: recentOrders.map(o => ({
+                        id: o._id,
+                        status: o.status,
+                        total: o.total,
+                        date: o.createdAt
+                    }))
+                }
+            };
+        }
+
         const context = {
             recentOrders: [],
             cartItems: [],

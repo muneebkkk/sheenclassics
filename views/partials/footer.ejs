@@ -207,7 +207,8 @@
             toggle.setAttribute('aria-expanded', 'false');
         }
 
-        toggle.addEventListener('click', () => {
+        toggle.addEventListener('click', (e) => {
+            e.stopPropagation();
             menu.classList.contains('active') ? closeMenu() : openMenu();
         });
 
@@ -224,11 +225,14 @@
         document.addEventListener('click', (event) => {
             if (window.innerWidth <= 768 && menu.classList.contains('active')) {
                 // Check if click is outside menu and toggle button
-                if (!menu.contains(event.target) && !toggle.contains(event.target)) {
+                const isClickInsideMenu = menu.contains(event.target);
+                const isClickOnToggle = toggle.contains(event.target);
+
+                if (!isClickInsideMenu && !isClickOnToggle) {
                     closeMenu();
                 }
             }
-        });
+        }, true);
 
         // Close on resize to desktop
         window.addEventListener('resize', () => {

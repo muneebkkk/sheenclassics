@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatbotToggle = document.getElementById('chatbot-toggle');
     const chatbotPanel = document.getElementById('chatbot-panel');
     const chatbotClose = document.getElementById('chatbot-close');
+    const adminMode = chatForm ? .dataset ? .mode === 'admin';
 
     // Store conversation history in session storage for context
     let conversationHistory = [];
@@ -37,7 +38,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         chatHistory.appendChild(message);
-        chatHistory.scrollTop = chatHistory.scrollHeight;
+
+        // Always scroll to bottom to keep messages visible
+        // Use requestAnimationFrame to ensure DOM is updated first
+        requestAnimationFrame(() => {
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        });
 
         // Add to conversation history for context
         conversationHistory.push({ role, content: text });
@@ -68,7 +74,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify({
                     message,
-                    history: historyForRequest
+                    history: historyForRequest,
+                    mode: adminMode ? 'admin' : 'customer'
                 })
             });
 
@@ -95,9 +102,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const initialGreetingText = adminMode ?
+        'Hi Admin! Ask me about stock, best sellers, trending products, orders, or inventory insights.' :
+        'Hi! I am the SheenClassics assistant. Ask me about products, orders, shipping, returns, or styling ideas.';
+
+    if (chatInput) {
+        chatInput.placeholder = adminMode ? 'Ask about inventory, sales or top products...' : 'Type a question...';
+    }
+
     // Show initial greeting on page load if this is the full chatbot page (not widget)
     if (chatForm && !chatbotToggle && chatHistory.children.length === 0 && !initialGreetingShown) {
-        addMessage('Hi! I am the SheenClassics assistant. Ask me about products, orders, shipping, returns, or styling ideas.', 'bot');
+        addMessage(initialGreetingText, 'bot');
         initialGreetingShown = true;
         // Focus input after a short delay
         setTimeout(() => {
@@ -112,12 +127,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isActive) {
                 // Show greeting if history is empty and not already shown
                 if (chatHistory.children.length === 0 && !initialGreetingShown) {
-                    addMessage('Hi! I am the SheenClassics assistant. Ask me about products, orders, shipping, returns, or styling ideas.', 'bot');
+                    addMessage(initialGreetingText, 'bot');
                     initialGreetingShown = true;
                 }
                 // Focus input after a short delay to ensure panel is rendered
                 setTimeout(() => {
-                    chatInput.focus();
+                    if (chatInput) chatInput.focus();
                 }, 100);
             }
         });

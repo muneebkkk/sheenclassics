@@ -162,6 +162,28 @@
                     </div>
                 </div>
 
+                <!-- Admin Chatbot Side Panel -->
+                <div id="chatbot-widget" class="chatbot-widget">
+                    <div class="chatbot-toggle" id="chatbot-toggle">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                    </div>
+                    <div class="chatbot-panel" id="chatbot-panel">
+                        <div class="chatbot-header">
+                            <div>
+                                <h3>Admin Intelligence</h3>
+                                <p>Ask about stock, best sellers, trending items, orders, or store performance.</p>
+                            </div>
+                            <button class="chatbot-close" id="chatbot-close">&times;</button>
+                        </div>
+                        <div id="chat-history" class="chatbot-history" aria-live="polite" aria-atomic="false"></div>
+                        <form id="chat-form" class="chatbot-form" data-mode="admin">
+                            <input id="chat-input" type="text" placeholder="Ask about inventory, sales or top products..." autocomplete="off" required>
+                            <button type="submit" class="btn btn-primary">Send</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
@@ -215,4 +237,5 @@
         }
     </script>
 
+    <script src="/js/chatbot.js"></script>
     <%- include('../partials/footer') %>

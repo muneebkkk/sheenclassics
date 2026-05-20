@@ -50,6 +50,30 @@ You have access to tools to search products, show product details, manage carts,
 
 Your goal is to provide excellent customer service and drive sales through helpful recommendations.`;
 
+const ADMIN_SYSTEM_PROMPT = `You are SheenClassics Admin AI Assistant. You support the store administrator with inventory, sales, best seller reports, stock levels, trending products, order summaries, and merchandising insights.
+
+**Your Personality:**
+- Professional, concise, and data-driven
+- Focus on inventory health and sales performance
+- Provide clear answers and suggest useful next steps for the admin
+
+**Your Capabilities:**
+- Use the provided admin store context to report on stock, best sellers, top sellers, trending items, and order performance
+- Do not guess or invent values; if data is unavailable, tell the admin you need more information
+- Keep answers practical and actionable for store operations
+
+**Response Format:**
+- Provide short, clear summaries
+- Use bullets or numbered lists for multiple items
+- Call out low-stock items and high performers when appropriate
+- Avoid customer-facing marketing language
+
+**Important:**
+- Treat queries like "stock remaining", "best sellers", "trending items" as admin analytics questions
+- Use the context data to answer directly
+- Refer to product names, stock values, and order trends clearly
+`;
+
 /**
  * Create messages for AI with conversation history
  */
@@ -64,12 +88,12 @@ function buildMessages(userMessage, conversationHistory = []) {
 /**
  * Add product context to system prompt for RAG (Retrieval-Augmented Generation)
  */
-function buildSystemPromptWithContext(contextData = '') {
+function buildSystemPromptWithContext(contextData = '', basePrompt = SYSTEM_PROMPT) {
     if (contextData) {
         const contextText = typeof contextData === 'string' ? contextData : JSON.stringify(contextData, null, 2);
-        return `${SYSTEM_PROMPT}\n\n**Store Context:**\n${contextText}`;
+        return `${basePrompt}\n\n**Store Context:**\n${contextText}`;
     }
-    return SYSTEM_PROMPT;
+    return basePrompt;
 }
 
 /**
@@ -114,10 +138,10 @@ async function callGroq(messages, systemPrompt, useTools = true) {
         console.error('[AI] Error calling Groq:', error.message);
 
         // Provide helpful error messages
-        if (error.response ?.status === 401) {
+        if (error.response ? .status === 401) {
             return { success: false, error: 'Invalid API key' };
         }
-        if (error.response ?.status === 429) {
+        if (error.response ? .status === 429) {
             return { success: false, error: 'Rate limited - please try again later' };
         }
         if (error.code === 'ECONNABORTED') {
@@ -199,8 +223,8 @@ async function processAIStep(messages, systemPrompt, useTools = true) {
         message,
         toolCalls,
         usage: {
-            promptTokens: apiResponse.usage ?.prompt_tokens,
-            completionTokens: apiResponse.usage ?.completion_tokens
+            promptTokens: apiResponse.usage ? .prompt_tokens,
+            completionTokens: apiResponse.usage ? .completion_tokens
         }
     };
 }
@@ -208,11 +232,11 @@ async function processAIStep(messages, systemPrompt, useTools = true) {
 /**
  * Main chat function - handles full conversation flow
  */
-async function chat(userMessage, conversationHistory = [], maxIterations = 5, contextData = '', useTools = true) {
+async function chat(userMessage, conversationHistory = [], maxIterations = 5, contextData = '', useTools = true, systemPromptOverride = null) {
     console.log('[AI] Starting chat interaction');
 
     const messages = buildMessages(userMessage, conversationHistory);
-    const systemPrompt = buildSystemPromptWithContext(contextData);
+    const systemPrompt = buildSystemPromptWithContext(contextData, systemPromptOverride || SYSTEM_PROMPT);
     let iteration = 0;
     let finalMessage = '';
 
@@ -286,5 +310,6 @@ module.exports = {
     buildMessages,
     buildSystemPromptWithContext,
     isConfigured,
-    SYSTEM_PROMPT
+    SYSTEM_PROMPT,
+    ADMIN_SYSTEM_PROMPT
 };
