@@ -30,7 +30,7 @@ exports.getChatbot = async(req, res) => {
  */
 exports.sendMessage = async(req, res) => {
         try {
-            const message = req.body.message ? .trim();
+            const message = req.body.message ?.trim();
             const conversationHistory = (req.body.history || [])
                 .filter(item => item && item.content)
                 .map(item => ({
@@ -47,8 +47,8 @@ exports.sendMessage = async(req, res) => {
                 });
             }
 
-            const userId = req.session ? .userId || null;
-            const isAdmin = req.session ? .isAdmin || req.body ? .mode === 'admin' || req.body ? .adminMode === true;
+            const userId = req.session ?.userId || null;
+            const isAdmin = req.session ?.isAdmin || req.body ?.mode === 'admin' || req.body ?.adminMode === true;
             logger.info(`Received message from ${isAdmin ? 'admin' : 'user'} ${userId || 'guest'}: "${message}"`);
 
             let reply, source, toolsUsed = [];
@@ -87,8 +87,8 @@ exports.sendMessage = async(req, res) => {
                         ...toolCall.arguments,
                         userId: userId,
                         sessionId: req.sessionID,
-                        isAdmin: Boolean(req.session ? .isAdmin),
-                        allowedOrderId: req.session ? .allowedOrderId
+                        isAdmin: Boolean(req.session ?.isAdmin),
+                        allowedOrderId: req.session ?.allowedOrderId
                     };
 
                     const toolResult = await toolService.executeTool(

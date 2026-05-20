@@ -138,10 +138,10 @@ async function callGroq(messages, systemPrompt, useTools = true) {
         console.error('[AI] Error calling Groq:', error.message);
 
         // Provide helpful error messages
-        if (error.response ? .status === 401) {
+        if (error.response ?.status === 401) {
             return { success: false, error: 'Invalid API key' };
         }
-        if (error.response ? .status === 429) {
+        if (error.response ?.status === 429) {
             return { success: false, error: 'Rate limited - please try again later' };
         }
         if (error.code === 'ECONNABORTED') {
@@ -223,8 +223,8 @@ async function processAIStep(messages, systemPrompt, useTools = true) {
         message,
         toolCalls,
         usage: {
-            promptTokens: apiResponse.usage ? .prompt_tokens,
-            completionTokens: apiResponse.usage ? .completion_tokens
+            promptTokens: apiResponse.usage ?.prompt_tokens,
+            completionTokens: apiResponse.usage ?.completion_tokens
         }
     };
 }
