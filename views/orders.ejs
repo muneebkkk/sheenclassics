@@ -1,15 +1,10 @@
 <%- include('partials/header') %>
 
     <main>
+        <%- include('partials/page-banner', { pbTitle: 'My Orders', pbSubtitle: 'Orders' }) %>
+
         <section class="section">
             <div class="container" style="max-width:1000px;">
-
-                <!-- Page Header -->
-                <div class="section-header reveal" style="margin-bottom:3rem;">
-                    <span class="section-eyebrow">History</span>
-                    <h1 class="section-title">My <em>Orders</em></h1>
-                    <div class="section-divider"></div>
-                </div>
 
                 <% if (orders && orders.length > 0) { %>
                     <div style="display:flex;flex-direction:column;gap:1.5rem;">

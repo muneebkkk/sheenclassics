@@ -1,9 +1,9 @@
 <%- include('partials/header') %>
 
     <main>
+        <%- include('partials/page-banner', { pbTitle: 'My Wishlist', pbSubtitle: 'Wishlist' }) %>
         <section class="section">
             <div class="container">
-                <h1 class="section-title">My Wishlist</h1>
 
                 <% if (wishlist && wishlist.products && wishlist.products.length > 0) { %>
                     <div class="product-grid">

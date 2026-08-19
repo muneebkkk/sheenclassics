@@ -1,15 +1,10 @@
 <%- include('partials/header') %>
 
     <main>
+        <%- include('partials/page-banner', { pbTitle: 'Your Cart', pbSubtitle: 'Cart' }) %>
+
         <section class="section">
             <div class="container">
-
-                <!-- Page Header -->
-                <div class="section-header reveal" style="margin-bottom: 3rem;">
-                    <span class="section-eyebrow">Review</span>
-                    <h1 class="section-title">Your <em>Cart</em></h1>
-                    <div class="section-divider"></div>
-                </div>
 
                 <% if (cart && cart.items && cart.items.length > 0) { %>
 

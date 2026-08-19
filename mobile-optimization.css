@@ -1,0 +1,407 @@
+/* =========================================
+   MOBILE OPTIMIZATION - CSS IMPROVEMENTS
+   ========================================= */
+
+/* Mobile Navigation - Optimized */
+@media (max-width: 768px) {
+    /* ── Navbar Container ── */
+    .navbar {
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .nav-wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 72px;
+        padding: 0 16px;
+    }
+
+    /* ── Logo (Left Side) ── */
+    .logo {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        height: 52px;
+    }
+
+    .logo img {
+        height: 48px;
+        width: auto;
+        transition: opacity 0.2s var(--ease);
+    }
+
+    .logo:active img {
+        opacity: 0.8;
+    }
+
+    /* ── Hamburger Toggle (Right Side) ── */
+    .mobile-menu-toggle {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        background: none;
+        border: none;
+        padding: 8px;
+        margin-right: -8px;
+        z-index: 1001;
+        flex-shrink: 0;
+        width: 44px;
+        height: 44px;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .mobile-menu-toggle span {
+        width: 24px;
+        height: 2px;
+        background: var(--primary);
+        border-radius: 2px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: center;
+        display: block;
+    }
+
+    /* Hamburger Animation - Optimized for Performance */
+    .mobile-menu-toggle.open span:nth-child(1) {
+        transform: translateY(7px) rotate(45deg);
+    }
+
+    .mobile-menu-toggle.open span:nth-child(2) {
+        opacity: 0;
+    }
+
+    .mobile-menu-toggle.open span:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg);
+    }
+
+    /* ── Mobile Navigation Menu ── */
+    .nav-menu {
+        position: fixed;
+        top: 72px;
+        left: 0;
+        width: 100%;
+        height: calc(100vh - 72px);
+        flex-direction: column;
+        background: var(--surface);
+        box-shadow: none;
+        padding: 0;
+        transition: none;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateX(-100%);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        gap: 0;
+        justify-content: flex-start;
+        border-top: 1px solid var(--border);
+    }
+
+    /* Menu Active State - GPU Accelerated */
+    .nav-menu.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(0);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                    visibility 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ── Navigation Links ── */
+    .nav-menu li {
+        width: 100%;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .nav-link {
+        display: block;
+        padding: 16px 20px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--text-secondary);
+        transition: all 0.2s var(--ease);
+        position: relative;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+
+    .nav-link:active {
+        background: var(--cream);
+        color: var(--primary);
+    }
+
+    .nav-link::after {
+        display: none;
+    }
+
+    .nav-link.admin-link {
+        color: var(--gold);
+    }
+
+    /* ── Special Nav Items ── */
+    .nav-icons-lg {
+        display: none !important;
+    }
+
+    .nav-menu .btn-primary {
+        margin: 16px 20px;
+        width: calc(100% - 40px);
+        text-align: center;
+        display: inline-block;
+    }
+
+    /* ── Navigation Overlay ── */
+    .nav-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(4px);
+        z-index: 999;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s var(--ease), visibility 0.3s var(--ease);
+        pointer-events: none;
+    }
+
+    .nav-overlay.active {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    /* ── Stock Alerts Button (Mobile) ── */
+    .admin-stock-alerts {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .admin-stock-alerts-btn {
+        width: 44px;
+        height: 44px;
+        border: 1px solid var(--border);
+        background: var(--cream);
+        color: var(--text-secondary);
+        border-radius: var(--radius-sm);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        transition: all 0.2s var(--ease);
+    }
+
+    .admin-stock-alerts-btn:active {
+        background: var(--gold-pale);
+        border-color: var(--gold);
+    }
+
+    .admin-stock-alerts-panel {
+        position: fixed;
+        right: 0;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        max-height: 60vh;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        box-shadow: var(--shadow-lg);
+        z-index: 1010;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* ── Scrollbar Styling (Mobile) ── */
+    .nav-menu::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .nav-menu::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .nav-menu::-webkit-scrollbar-thumb {
+        background: var(--gold);
+        border-radius: 99px;
+    }
+}
+
+/* =========================================
+   TABLET & SMALL SCREENS (480px - 768px)
+   ========================================= */
+@media (min-width: 480px) and (max-width: 768px) {
+    .nav-wrapper {
+        padding: 0 20px;
+        height: 72px;
+    }
+
+    .logo img {
+        height: 52px;
+    }
+
+    .nav-link {
+        padding: 18px 24px;
+        font-size: 1rem;
+    }
+}
+
+/* =========================================
+   SMALL PHONES (< 480px)
+   ========================================= */
+@media (max-width: 480px) {
+    .navbar {
+        background: rgba(255, 255, 255, 0.99);
+        backdrop-filter: blur(20px);
+    }
+
+    .nav-wrapper {
+        height: 64px;
+        padding: 0 12px;
+    }
+
+    .logo img {
+        height: 44px;
+        width: auto;
+    }
+
+    .mobile-menu-toggle {
+        width: 40px;
+        height: 40px;
+        padding: 6px;
+    }
+
+    .mobile-menu-toggle span {
+        width: 20px;
+        height: 2px;
+    }
+
+    .nav-menu {
+        top: 64px;
+        height: calc(100vh - 64px);
+    }
+
+    .nav-link {
+        padding: 14px 16px;
+        font-size: 0.9rem;
+    }
+
+    .nav-menu .btn-primary {
+        margin: 12px 16px;
+        width: calc(100% - 32px);
+    }
+}
+
+/* =========================================
+   PERFORMANCE OPTIMIZATION
+   ========================================= */
+
+/* Reduce layout thrashing */
+.nav-menu,
+.nav-overlay {
+    will-change: transform, opacity;
+}
+
+/* Optimize animations with GPU acceleration */
+@supports (transform: translateZ(0)) {
+    .mobile-menu-toggle span,
+    .nav-menu,
+    .nav-overlay {
+        transform: translateZ(0);
+    }
+}
+
+/* =========================================
+   DARK MODE SUPPORT (Future-Ready)
+   ========================================= */
+@media (prefers-color-scheme: dark) {
+    .nav-menu {
+        background: var(--primary-soft);
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .nav-link {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .nav-link:active {
+        background: rgba(212, 175, 55, 0.1);
+        color: var(--gold);
+    }
+
+    .nav-menu li {
+        border-bottom-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .mobile-menu-toggle span {
+        background: rgba(255, 255, 255, 0.9);
+    }
+
+    .nav-overlay {
+        background: rgba(0, 0, 0, 0.6);
+    }
+}
+
+/* =========================================
+   ACCESSIBILITY IMPROVEMENTS
+   ========================================= */
+
+/* Focus states for keyboard navigation */
+.mobile-menu-toggle:focus-visible,
+.nav-link:focus-visible,
+.nav-overlay:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    .mobile-menu-toggle span,
+    .nav-menu,
+    .nav-overlay {
+        transition: none !important;
+        animation: none !important;
+    }
+
+    .mobile-menu-toggle.open span:nth-child(1),
+    .mobile-menu-toggle.open span:nth-child(2),
+    .mobile-menu-toggle.open span:nth-child(3) {
+        transform: none;
+        opacity: 1;
+    }
+}
+
+/* =========================================
+   HIGH DPI / RETINA DISPLAYS
+   ========================================= */
+@media (min-device-pixel-ratio: 2) {
+    .nav-menu li {
+        border-bottom-width: 0.5px;
+    }
+
+    .navbar {
+        border-bottom-width: 0.5px;
+    }
+}
+
+/* =========================================
+   LANDSCAPE MODE OPTIMIZATION
+   ========================================= */
+@media (max-height: 500px) and (max-width: 768px) {
+    .nav-menu {
+        height: calc(100vh - 64px);
+        overflow-y: auto;
+    }
+
+    .nav-link {
+        padding: 12px 20px;
+        font-size: 0.85rem;
+    }
+}

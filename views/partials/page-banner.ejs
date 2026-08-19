@@ -1,0 +1,18 @@
+<% /* locals: pbTitle (required), pbSubtitle (optional breadcrumb label), pbImage (optional, omit for slim variant) */ %>
+<% if (typeof pbImage !== 'undefined' && pbImage) { %>
+<div class="page-banner">
+    <img class="page-banner-img" src="<%= pbImage %>" alt="">
+    <div class="page-banner-overlay"></div>
+    <div class="container page-banner-content">
+        <% if (typeof pbSubtitle !== 'undefined' && pbSubtitle) { %><p class="page-banner-crumb"><a href="/">Home</a> / <%= pbSubtitle %></p><% } %>
+        <h1><%= pbTitle %></h1>
+    </div>
+</div>
+<% } else { %>
+<div class="page-banner page-banner-slim">
+    <div class="container page-banner-content">
+        <% if (typeof pbSubtitle !== 'undefined' && pbSubtitle) { %><p class="page-banner-crumb"><a href="/">Home</a> / <%= pbSubtitle %></p><% } %>
+        <h1><%= pbTitle %></h1>
+    </div>
+</div>
+<% } %>

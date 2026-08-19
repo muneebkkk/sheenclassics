@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatbotToggle = document.getElementById('chatbot-toggle');
     const chatbotPanel = document.getElementById('chatbot-panel');
     const chatbotClose = document.getElementById('chatbot-close');
-    const adminMode = chatForm ? .dataset ? .mode === 'admin';
+    const adminMode = chatForm ?.dataset ?.mode === 'admin';
 
     // Store conversation history in session storage for context
     let conversationHistory = [];
